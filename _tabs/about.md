@@ -5,5 +5,5 @@ order: 4
 ---
 
 
-<!-- {: .prompt-tip } -->
+
 Jr penetration tester who is obsessed with cyber security 
