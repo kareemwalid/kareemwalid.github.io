@@ -57,3 +57,20 @@ smbmap -u rose -p KxEPkKe6R8su -H sequel.htb
     Users                  READ ONLY
     
 ```
+Let's try to connect to smb and check accounting department 
+![](../pics/files.png)
+we found 2 files and we downloaded them to our local machine using "get" command in smb client
+
+now lets check the type of these files 
+![](../pics/filess.png)
+we found out its not spreedshet its comprised file so after extracting the files and check them out we got these credentials:
+![](../pics/xml%20.png)
+we notice **sa** credentials
+```
+sa is the defult admin account for connecting and managing the MSSQL Database
+``` 
+so let's try to use it to login with it 
+we can use this command we will use impacket tool
+```bash
+impacket-mssqlclient escapetwo.htb/sa:'MSSQLP@ssw0rd!'@10.10.11.51
+```
