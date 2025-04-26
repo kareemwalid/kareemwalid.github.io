@@ -74,7 +74,7 @@ sa is the defult admin account for connecting and managing the MSSQL Database
 We try to connect to the MSSQL service using **default `sa` credentials**.
 
 ```bash
-impacket-mssqlclient escapetwo.htb/sa:'MSSQLP@ssw0rd!'@10.10.11.51
+impacket-mssqlclient escapetwo.htb/sa:'xxxxxxxx!'@10.10.11.51
 ```
 ![](../pics/sql.png)
 Cool now we have to enable xp_cmdshell to be able to execute commands on the system we can enable it by : 
