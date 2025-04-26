@@ -1,5 +1,5 @@
 ---
-title: "EscapeTwo - HackTheBox Machine"
+title: "EscapeTwo - Active Directory Machine HTB"
 date: 2025-04-25 00:00:00 
 categories: [Hack The Box,Active Directory]
 tags: [HTB,CTFs,Active Directory]
