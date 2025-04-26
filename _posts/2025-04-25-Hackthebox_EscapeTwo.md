@@ -101,8 +101,11 @@ Wqxxxxxxxxxxxxxxxx
 ```
 Also i found user called ryan : 
 ![](../pics/ryan.png)
+
 Lets use these credintials to login and try to get the user flag : 
+
 ![](../pics/userflag.png)
+
 we got the user flag now 
 ## ⚡Privilege escalation
 Let's use bloodhound in order to find somehting we can exploit in order to get privilege escalation 
