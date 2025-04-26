@@ -83,7 +83,9 @@ EXEC sp_configure 'xp_cmdshell', 1;
 RECONFIGURE;
  ```
  ![](../pics/sqls.png)
+
  ### 🛠️ Trying to get reverse shell:
+ 
  okay let's get reverse shell on the machine 
  first we will need to craft our powershell script to give us reverse shell
  ![](../pics/shell.png)
@@ -103,7 +105,7 @@ Also i found user called ryan :
 Lets use these credintials to login and try to get the user flag : 
 ![](../pics/userflag.png)
 we got the user flag now 
-## ⚡privilege escalation
+## ⚡Privilege escalation
 Let's use bloodhound in order to find somehting we can exploit in order to get privilege escalation 
 ![](../pics/bloodhound.png)
 
