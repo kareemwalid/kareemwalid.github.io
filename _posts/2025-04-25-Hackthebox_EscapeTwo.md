@@ -85,7 +85,6 @@ RECONFIGURE;
  ![](../pics/sqls.png)
 
  ### 🛠️ Trying to get reverse shell:
- 
  okay let's get reverse shell on the machine 
  first we will need to craft our powershell script to give us reverse shell
  ![](../pics/shell.png)
