@@ -37,7 +37,7 @@ Let’s enumerate the **SMB protocol** using the credentials we obtained earlier
 
 We'll use a tool called **`smbmap`** to list accessible shares.
 
-### 🛠️ Command:
+### 🛠️ Recon:
 
 ```bash
 smbmap -u rose -p KxEPkKe6R8su -H sequel.htb
@@ -73,8 +73,6 @@ sa is the defult admin account for connecting and managing the MSSQL Database
 
 We try to connect to the MSSQL service using **default `sa` credentials**.
 
-### 🛠️ Command:
-
 ```bash
 impacket-mssqlclient escapetwo.htb/sa:'MSSQLP@ssw0rd!'@10.10.11.51
 ```
@@ -85,6 +83,7 @@ EXEC sp_configure 'xp_cmdshell', 1;
 RECONFIGURE;
  ```
  ![](../pics/sqls.png)
+ ### 🛠️ Trying to get reverse shell:
  okay let's get reverse shell on the machine 
  first we will need to craft our powershell script to give us reverse shell
  ![](../pics/shell.png)
@@ -94,6 +93,7 @@ RECONFIGURE;
 ```
 Boom we got reverse shell now :
 ![](../pics/frommachine.png)
+
 after some digging i found configuration file leaking sql_svc information 
 ```bash
 Wqxxxxxxxxxxxxxxxx
@@ -103,3 +103,35 @@ Also i found user called ryan :
 Lets use these credintials to login and try to get the user flag : 
 ![](../pics/userflag.png)
 we got the user flag now 
+## ⚡privilege escalation
+Let's use bloodhound in order to find somehting we can exploit in order to get privilege escalation 
+![](../pics/bloodhound.png)
+
+we see here that the user **ryan** has WriteOwner permission on CA_SVC so thats mean that **ryan** can change the Owner of CA_SVC.
+
+CA_SVC is member of CERT_publisher so it has the right to be the certificate issuer.
+
+we will use BloodyAD to perform this 
+```
+bloodyAD can perform specific LDAP calls to a domain controller in order to perform AD privesc. It supports authentication using cleartext passwords, pass-the-hash, pass-the-ticket or certificates and binds to LDAP services of a domain controller to perform AD privesc.
+```
+so let's do it and change the owner to ryan
+![](../pics/blood.png)
+Done :)
+
+Now we need to abuse this and this attack called **Grant Rights Abuse**
+
+### Grant Rights Abuse
+In Active Directory (AD), Grant Rights abuse occurs when an attacker gains control over an object that has WriteDacl (Write permissions on the Discretionary Access Control List) over another object. This allows the attacker to modify the target object's DACL (Discretionary Access Control List) by adding a malicious Access Control Entry (ACE), effectively granting themselves or another account unauthorized privileges.
+
+so we will modify the DACL (Discretionary Access Control List) of a target account **ca_svc** in Active Directory, granting full control to **ryan**
+
+we will use impacket tool to perform this 
+```bash
+impacket-dacledit  -action 'write' -rights 'FullControl' -principal 'user' -target 'ca_svc' 'sequel.htb'/"user":"password"
+```
+
+![](../pics/dacl.png)
+
+okay now what ???
+now after we changed the owner 
