@@ -4,29 +4,18 @@ date: 1337-01-01 00:00:00
 categories: [Hack The Box,Notes]
 tags: [HTB,CTFs,Notes]
 ---
-## [Date of the Entry]
+## init 0x00
+![](../whoami.png)
 
-### Topic: [Short Description of the Topic]
-
----
-
-#### Summary:
-[Write a brief paragraph or overview of what you're going to write about. This could be what you learned, what challenge you're solving, or a brief introduction to the exploit/technique you're discussing.]
-
----
-
-#### What I Learned / Steps Taken:
-
-1. **[Step 1]**
-   - [Description of what you did or learned]
-2. **[Step 2]**
-   - [Description of what you did or learned]
-3. **[Step 3]**
-   - [Description of what you did or learned]
+### Summary:
+Welcome to **My Hacking Diaries**.  
+This is where I write down every note, trick, or idea I come across while learning and practicing offensive security. 
+Some notes might come from **HackTheBox** machines, bug bounty hunting, enumeration tips, privilege escalation tricks, or reverse engineering challenges. 
+Others might be things I learn from programming, scripting, or random CTF problems. 
+I’m mainly writing these for myself because I forget things quickly but I also hope they’ll help beginners, or anyone stuck and needing a hint. At the end of the day, everything here is part of the bigger journey in hacking and offensive security.
 
 ---
 
-#### Commands or Code:
-```bash
-# Command or code here
-[Insert your shell command, script, or any code that was used for this task]
+### HackTheBox Notes:  
+**_Date : 27/04/2025_**
+
