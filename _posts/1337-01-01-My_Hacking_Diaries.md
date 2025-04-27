@@ -7,7 +7,7 @@ tags: [HTB,CTFs,Notes]
 ## Init 0x00
 ![](../whoami.png)
 
-### Summary:
+
 Welcome to **My Hacking Diaries**.  
 This is where I write down every note, trick, or idea I come across while learning and practicing offensive security. 
 Some notes might come from **HackTheBox** machines, bug bounty hunting, enumeration tips, privilege escalation tricks, or reverse engineering challenges. 
@@ -16,7 +16,7 @@ I’m mainly writing these for myself because I forget things quickly but I also
 
 ---
 
-### HackTheBox Notes:  
+## HackTheBox Notes  
 **_Date : 27/04/2025_**
 
 - **subdomain fuzzing**
