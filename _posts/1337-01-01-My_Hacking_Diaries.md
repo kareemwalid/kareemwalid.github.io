@@ -21,13 +21,11 @@ I’m mainly writing these for myself because I forget things quickly but I also
 
 - **subdomain fuzzing**
 ```bash
-ffuf -u http://heal.htb/ -w ./fuzzDicts/subdomainDicts/main.txt -H "Host:FUZZ.heal.htb"  -mc 200
+ffuf -u http://test.htb/ -w ./fuzzDicts/subdomainDicts/main.txt -H "Host:FUZZ.test.htb"  -mc 200
 ```
 
 - Always add any subdomain to /etc/hosts file in order to be able to open it duuh
 - remember always `etc/passwd` contain information about the users like this 
-
-![alt text](../image-78.png)
 
 - **config file** for ruby on rails most of the time can be found at 
 ```bash
@@ -44,7 +42,7 @@ python3 -c "import pty;pty.spawn('/bin/bash')"
 - port forwarding using ssh 
 
 ```bash
-ssh -L 8500:127.0.0.1:8500 ron@heal.htb 
+ssh -L 8500:127.0.0.1:8500 messi@test.htb 
 ```
 
 _`-L`: This flag specifies local port forwarding. It means that you'll forward a local port (on your local machine) to a port on the remote machine._
