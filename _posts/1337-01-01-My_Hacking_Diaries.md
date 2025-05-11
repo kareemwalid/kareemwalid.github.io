@@ -19,7 +19,7 @@ I’m mainly writing these for myself because I forget things quickly but I also
 ## HackTheBox Notes  
 **_Date : 27/04/2025_**
 
-- **subdomain fuzzing**
+- **Subdomain fuzzing**
 ```bash
 ffuf -u http://test.htb/ -w ./fuzzDicts/subdomainDicts/main.txt -H "Host:FUZZ.test.htb"  -mc 200
 ```
@@ -56,3 +56,17 @@ _<span style="color:green;">127.0.0.1</span>: The address on the remote machine 
 _<span style="color:blue;">8500</span>: The port on the remote machine that you want to forward the local connection to. In this case, it's port 8500 on the remote machine._
 
 - **[LinPEAS](https://github.com/peass-ng/PEASS-ng/tree/master/linPEAS)** is a script that search for possible paths to escalate privileges on Linux/Unix*/MacOS hosts. The checks are explained on [book.hacktricks.wiki](https://book.hacktricks.wiki)
+
+**_Date : 5/05/2025_**
+
+- **File Upload Trick**
+Try to add `.` after the last extenstion sometimes is passes the filters like this
+```bash
+shell.php.
+```
+Another trick you can add this at the first line of your shell file 
+
+```bash
+    GIF89a
+    <?php phpinfo(); >
+```
