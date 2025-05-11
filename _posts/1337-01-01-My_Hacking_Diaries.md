@@ -10,18 +10,18 @@ tags: [HTB,CTFs,Notes]
 
 Welcome to **My Hacking Diaries**.  
 This is where I write down every note, trick, or idea I come across while learning and practicing offensive security. 
-Some notes might come from **HackTheBox** machines, bug bounty hunting, enumeration tips, privilege escalation tricks, or reverse engineering challenges. 
+Some notes might come from **CTF** machines, bug bounty hunting, enumeration tips, privilege escalation tricks, or reverse engineering challenges. 
 Others might be things I learn from programming, scripting, or random CTF problems. 
 I’m mainly writing these for myself because I forget things quickly but I also hope they’ll help beginners, or anyone stuck and needing a hint. At the end of the day, everything here is part of the bigger journey in hacking and offensive security.
 
 ---
 
-## HackTheBox Notes  
+## Hacking Notes  
 **_Date : 27/04/2025_**
 
 - **Subdomain fuzzing**
 ```bash
-ffuf -u http://test.htb/ -w ./fuzzDicts/subdomainDicts/main.txt -H "Host:FUZZ.test.htb"  -mc 200
+ffuf -u http://test.com/ -w ./fuzzDicts/subdomainDicts/main.txt -H "Host:FUZZ.test.com"  -mc 200
 ```
 
 - Always add any subdomain to /etc/hosts file in order to be able to open it duuh
@@ -42,7 +42,7 @@ python3 -c "import pty;pty.spawn('/bin/bash')"
 - port forwarding using ssh 
 
 ```bash
-ssh -L 8500:127.0.0.1:8500 messi@test.htb 
+ssh -L 8500:127.0.0.1:8500 messi@test.com 
 ```
 
 _`-L`: This flag specifies local port forwarding. It means that you'll forward a local port (on your local machine) to a port on the remote machine._
