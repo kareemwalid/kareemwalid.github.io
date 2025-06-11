@@ -4,7 +4,7 @@ date: 1337-01-01 00:00:00
 categories: [Hack The Box,Notes]
 tags: [HTB,CTFs,Notes]
 ---
-## Init 0x00
+## Init 0x01
 ![](../whoami.png)
 
 
