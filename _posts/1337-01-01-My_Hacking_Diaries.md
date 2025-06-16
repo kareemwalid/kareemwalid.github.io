@@ -1,6 +1,6 @@
 ---
 title: "My Hacking Diaries"
-date: 1337-01-03 00:00:00 
+date: 1337-01-01 00:00:00 
 categories: [Hack The Box,Notes]
 tags: [HTB,CTFs,Notes]
 ---
