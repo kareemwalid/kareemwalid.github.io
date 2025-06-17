@@ -11,4 +11,4 @@ We will start solving machines from this list and will write writeup for each ma
 So Let's Get started :
 
 # Linux machines :
-[Sea-Machine](./1337-01-01-Sea.md)
+[Sea-Machine](./1337-01-01-Sea)
