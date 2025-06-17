@@ -11,3 +11,4 @@ We will start solving machines from this list and will write writeup for each ma
 So Let's Get started :
 
 # Linux machines :
+[Sea-Machine](https://kareemwalid.github.io/posts/Sea/)
