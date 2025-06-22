@@ -63,3 +63,8 @@ using Gobuster :
 ```bash
 gobuster dir http://test.htb/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x txt,asp,aspx,html
 ```
+
+you can use this to internal scan 
+```bash
+ss -tuln
+```
