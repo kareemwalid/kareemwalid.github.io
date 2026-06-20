@@ -8,8 +8,6 @@ categories: [Hack The Box]
 
 # ServMon - Easy Windows Machine HTB
 
-![ServMon machine banner](servmon.png)
-
 ## 📝 Description
 
 ServMon is an easy Windows machine featuring a mix of misconfigured services: an FTP server with anonymous access, an NVMS-1000 video management software vulnerable to directory traversal, and an NSClient++ monitoring agent running as SYSTEM. The attack path involves leveraging the directory traversal to steal credentials, gaining SSH access as a low-privileged user, then abusing the NSClient++ web API to execute commands as `NT AUTHORITY\SYSTEM`.
