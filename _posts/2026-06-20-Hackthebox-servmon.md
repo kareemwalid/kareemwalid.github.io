@@ -8,7 +8,7 @@ categories: [Hack The Box]
 
 # ServMon - Easy Windows Machine HTB
 
-![ServMon machine banner](/path/to/servmon-banner.png)
+![ServMon machine banner](servmon.png)
 
 ## 📝 Description
 
