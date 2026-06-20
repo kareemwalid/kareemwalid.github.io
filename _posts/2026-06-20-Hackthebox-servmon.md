@@ -6,15 +6,17 @@ tags: [HTB, CTFs, Windows, Privilege Escalation, NSClient++]
 categories: [Hack The Box]
 ---
 
+![ServMon machine banner](../pics/servmon.png)
+
 # ServMon - Easy Windows Machine HTB
 
-## 📝 Description
+## Description
 
 ServMon is an easy Windows machine featuring a mix of misconfigured services: an FTP server with anonymous access, an NVMS-1000 video management software vulnerable to directory traversal, and an NSClient++ monitoring agent running as SYSTEM. The attack path involves leveraging the directory traversal to steal credentials, gaining SSH access as a low-privileged user, then abusing the NSClient++ web API to execute commands as `NT AUTHORITY\SYSTEM`.
 
 ---
 
-## 🔍 Enumeration
+## Enumeration
 
 We start with a full port scan using **Nmap**:
 
@@ -36,7 +38,7 @@ PORT      STATE    SERVICE       VERSION
 
 ---
 
-## 📁 FTP - Anonymous Access
+## FTP - Anonymous Access
 
 The FTP server allows anonymous login. Let's connect and explore:
 
@@ -77,7 +79,7 @@ Please remove it once you have finished with it.
 
 ---
 
-## 🌐 NVMS-1000 — Directory Traversal
+## NVMS-1000 — Directory Traversal
 
 The web server on port 80 runs **NVMS-1000**, a video surveillance software known for a directory traversal vulnerability (CVE-2019-20085 style).
 
@@ -119,7 +121,7 @@ So NSClient++ is only accessible from `127.0.0.1` — we'll need an SSH tunnel.
 
 ---
 
-## 🚪 SSH Access — Nadine
+## SSH Access — Nadine
 
 Using the password list from Nathan's desktop, we find Nadine's credentials:
 
@@ -146,7 +148,7 @@ d1fa48d75838996e2a237ef0ce1b69a5
 
 ---
 
-## ⚡ Privilege Escalation — NSClient++
+## Privilege Escalation — NSClient++
 
 ### Overview
 
@@ -263,7 +265,7 @@ curl -sk -u admin:ew2x6SsGTxjRwXOT \
 
 ---
 
-## 🗝️ Flags
+## Flags
 
 | Flag | Value |
 |------|-------|
@@ -272,7 +274,7 @@ curl -sk -u admin:ew2x6SsGTxjRwXOT \
 
 ---
 
-## 📌 Key Takeaways
+## Key Takeaways
 
 - **Always check for anonymous FTP access** — it often leaks sensitive information
 - **NVMS-1000** has a known directory traversal vulnerability that allows reading arbitrary files as the `SYSTEM` user
@@ -281,7 +283,7 @@ curl -sk -u admin:ew2x6SsGTxjRwXOT \
 
 ---
 
-## 🙏 Conclusion
+## Conclusion
 
 Thank you for reading! If you have any questions, feel free to reach out to me on Twitter: [@kareemwalid17](https://twitter.com/kareemwalid17).
 
@@ -289,7 +291,7 @@ Thank you for reading! If you have any questions, feel free to reach out to me o
 
 ---
 
-## 📚 Resources
+## Resources
 
 - [NSClient++ 0.5.2.35 - Privilege Escalation (Exploit-DB 46802)](https://www.exploit-db.com/exploits/46802)
 - [NVMS-1000 Directory Traversal](https://www.exploit-db.com/exploits/48311)
