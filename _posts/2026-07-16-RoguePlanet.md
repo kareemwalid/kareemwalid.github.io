@@ -7,7 +7,8 @@ tags: [windows, privilege-escalation, exploit, defender, lpe, kernel, race-condi
 
 ## Description
 
-**RoguePlanet** is a Windows Defender EoP exploit by **Nightmare-Eclipse**. A single ~79000-line C++ file (mostly an embedded ISO) that chains: **ISO mounting** → **Defender MpClient API abuse** → **EICAR trigger** → **oplock-based race** → **VSS timing side-channel** → **junction redirection** → **WER scheduled task hijack** → **SYSTEM shell**.
+**RoguePlanet** is a Windows Defender EoP exploit by **Nightmare-Eclipse**. A single ~79000-line C++ file (mostly an embedded ISO) that chains: 
+**ISO mounting** → **Defender MpClient API abuse** → **EICAR trigger** → **oplock-based race** → **VSS timing side-channel** → **junction redirection** → **WER scheduled task hijack** → **SYSTEM shell**.
 
 Before the code walkthrough, we need to understand the Windows internals it exploits.
 
