@@ -16,7 +16,7 @@ timezone:
 
 title: Kareem's Blog # the main title
 
-tagline: Offensive Security Engineer | Red Team Ops | Malware Reversing | Threat Hunter chasing APTs and chaos. # it will display as the subtitle
+tagline: Offensive Security Engineer | Red Team Ops | Malware Reversing | Threat Hunter # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
   Blog, Penetration Testing, Red Teaming, Bug hunting, Kareem Walid.
