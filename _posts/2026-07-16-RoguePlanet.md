@@ -1,5 +1,5 @@
 ---
-title: Nightmare-Eclipse Series : RoguePlanet — Full Code Breakdown of a Windows Defender LPE
+title: Nightmare-Eclipse Series RoguePlanet — Full Code Breakdown of a Windows Defender LPE
 date: 2026-07-16
 categories: [Exploit Dev, Windows]
 tags: [windows, privilege-escalation, exploit, defender, lpe, kernel, race-condition, c++]
