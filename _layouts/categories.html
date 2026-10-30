@@ -14,7 +14,8 @@ layout: default
   <div class="chip-row">
     {% assign cats = site.categories | sort %}
     {% for c in cats %}
-    <a href="{{ '/categories/' | append: c[0] | slugify | append: '/' | relative_url }}">
+    {% assign cs = c[0] | slugify %}
+    <a href="{{ cs | prepend: '/categories/' | append: '/' | relative_url }}">
       <span>{{ c[0] | downcase }}</span>
       <span class="count">· {{ c[1].size }}</span>
     </a>

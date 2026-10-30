@@ -14,7 +14,8 @@ layout: default
   <div class="chip-row">
     {% assign tags = site.tags | sort %}
     {% for t in tags %}
-    <a href="{{ '/tags/' | append: t[0] | slugify | append: '/' | relative_url }}">
+    {% assign ts = t[0] | slugify %}
+    <a href="{{ ts | prepend: '/tags/' | append: '/' | relative_url }}">
       <span>{{ t[0] | downcase }}</span>
       <span class="count">· {{ t[1].size }}</span>
     </a>

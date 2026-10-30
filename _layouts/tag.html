@@ -22,7 +22,8 @@ layout: default
       <a class="title" href="{{ post.url | relative_url }}">{{ post.title }}</a>
       <div class="meta">
         {% for t in post.tags limit: 3 %}
-        <a class="tag" href="{{ '/tags/' | append: t | slugify | append: '/' | relative_url }}">{{ t | downcase }}</a>
+        {% assign ts = t | slugify %}
+        <a class="tag" href="{{ ts | prepend: '/tags/' | append: '/' | relative_url }}">{{ t | downcase }}</a>
         {% endfor %}
       </div>
     </li>
