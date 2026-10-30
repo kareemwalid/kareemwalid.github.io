@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kareem's Blog Editor</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a22; --panel2:#1f2330; --border:#2a2f3d;
+    --text:#e6e8ee; --mute:#8b93a7; --accent:#4f8cff; --accent2:#67d391;
+    --danger:#ff6b6b; --warn:#ffb648;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f6f7fb; --panel:#ffffff; --panel2:#f0f2f8; --border:#dde1ec;
+      --text:#141822; --mute:#5b6477; --accent:#2563eb; --accent2:#15803d;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text);
+  }
+  header{
+    display:flex; align-items:center; gap:12px; padding:10px 14px;
+    background:var(--panel); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10;
+  }
+  header h1{font-size:15px; margin:0; font-weight:600; letter-spacing:.2px}
+  header .spacer{flex:1}
+  header .status{font-size:12px; color:var(--mute)}
+  button, .btn{
+    background:var(--panel2); color:var(--text); border:1px solid var(--border);
+    padding:7px 12px; border-radius:7px; cursor:pointer; font-size:13px;
+  }
+  button:hover{border-color:var(--accent)}
+  button.primary{background:var(--accent); color:#fff; border-color:var(--accent)}
+  button.primary:hover{filter:brightness(1.1)}
+  button.ghost{background:transparent}
+  button:disabled{opacity:.5; cursor:not-allowed}
+
+  main{display:grid; grid-template-columns:300px 1fr; min-height:calc(100vh - 51px)}
+  @media (max-width:900px){ main{grid-template-columns:1fr} }
+
+  aside{
+    background:var(--panel); border-right:1px solid var(--border);
+    padding:14px; overflow-y:auto;
+  }
+  aside h2{font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--mute); margin:4px 0 8px}
+  aside .field{margin-bottom:10px}
+  aside label{display:block; font-size:12px; color:var(--mute); margin-bottom:4px}
+  aside input, aside textarea, aside select{
+    width:100%; background:var(--panel2); color:var(--text);
+    border:1px solid var(--border); border-radius:6px; padding:7px 9px;
+    font:inherit;
+  }
+  aside input:focus, aside textarea:focus{outline:none; border-color:var(--accent)}
+  aside .row{display:flex; gap:8px}
+  aside .row > *{flex:1}
+  aside hr{border:none; border-top:1px solid var(--border); margin:14px 0}
+
+  .posts-list{display:flex; flex-direction:column; gap:4px; max-height:260px; overflow-y:auto}
+  .post-item{
+    padding:7px 9px; border-radius:6px; cursor:pointer; font-size:12.5px;
+    border:1px solid transparent; color:var(--text);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .post-item:hover{background:var(--panel2); border-color:var(--border)}
+  .post-item .meta{color:var(--mute); font-size:11px}
+
+  section.editor{padding:14px; display:flex; flex-direction:column; gap:10px}
+  .toolbar-extra{display:flex; gap:8px; flex-wrap:wrap}
+  .drop-hint{
+    font-size:12px; color:var(--mute); border:1px dashed var(--border);
+    padding:6px 10px; border-radius:6px;
+  }
+  .drop-hint.drag{border-color:var(--accent2); color:var(--accent2)}
+
+  .toast{
+    position:fixed; bottom:16px; right:16px; z-index:100;
+    background:var(--panel); border:1px solid var(--border); color:var(--text);
+    padding:10px 14px; border-radius:8px; max-width:420px; font-size:13px;
+    box-shadow:0 10px 30px rgba(0,0,0,.25); opacity:0; transform:translateY(10px);
+    transition:opacity .15s, transform .15s;
+  }
+  .toast.show{opacity:1; transform:translateY(0)}
+  .toast.err{border-color:var(--danger)}
+  .toast.ok{border-color:var(--accent2)}
+
+  /* EasyMDE theming */
+  .EasyMDEContainer .CodeMirror{
+    background:var(--panel); color:var(--text); border-color:var(--border);
+    min-height:60vh;
+  }
+  .EasyMDEContainer .CodeMirror-cursor{border-color:var(--text)}
+  .editor-toolbar{background:var(--panel); border-color:var(--border)}
+  .editor-toolbar button{color:var(--text) !important}
+  .editor-toolbar button:hover, .editor-toolbar button.active{background:var(--panel2); border-color:var(--border)}
+  .editor-toolbar.fullscreen, .CodeMirror-fullscreen{background:var(--bg)}
+  .editor-preview, .editor-preview-side{background:var(--panel); color:var(--text); border-color:var(--border)}
+  .editor-statusbar{color:var(--mute)}
+  .CodeMirror-selected{background:rgba(79,140,255,.25) !important}
+
+  dialog{
+    background:var(--panel); color:var(--text); border:1px solid var(--border);
+    border-radius:10px; padding:18px; max-width:460px; width:92%;
+  }
+  dialog::backdrop{background:rgba(0,0,0,.55)}
+  dialog h3{margin:0 0 10px; font-size:15px}
+  dialog p{color:var(--mute); font-size:12.5px}
+  dialog .actions{display:flex; gap:8px; justify-content:flex-end; margin-top:12px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kareem's Blog Editor</h1>
+  <span class="status" id="repoStatus">not connected</span>
+  <div class="spacer"></div>
+  <button class="ghost" id="btnSettings" title="Settings">Settings</button>
+  <button class="ghost" id="btnSaveDraft" title="Save local draft (Ctrl/Cmd+S)">Save draft</button>
+  <button class="primary" id="btnPublish" title="Publish to GitHub (Ctrl/Cmd+Enter)">Publish</button>
+</header>
+
+<main>
+  <aside>
+    <h2>Post metadata</h2>
+    <div class="field">
+      <label for="fTitle">Title</label>
+      <input id="fTitle" placeholder="My new post">
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="fDate">Date</label>
+        <input id="fDate" type="date">
+      </div>
+      <div class="field">
+        <label for="fSlug">Slug (filename)</label>
+        <input id="fSlug" placeholder="auto from title">
+      </div>
+    </div>
+    <div class="field">
+      <label for="fCategories">Categories (comma-separated)</label>
+      <input id="fCategories" placeholder="Red Team, Windows">
+    </div>
+    <div class="field">
+      <label for="fTags">Tags (comma-separated)</label>
+      <input id="fTags" placeholder="defender, lpe, race-condition">
+    </div>
+    <div class="field">
+      <label for="fPinned">Options</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text)">
+        <input type="checkbox" id="fPinned" style="width:auto"> Pin post
+      </label>
+    </div>
+
+    <hr>
+    <h2>Existing posts</h2>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <button id="btnNewPost" class="ghost" style="flex:1">+ New post</button>
+      <button id="btnRefreshPosts" class="ghost" title="Refresh">↻</button>
+    </div>
+    <div class="posts-list" id="postsList"><div style="color:var(--mute);font-size:12px">Connect GitHub to list posts.</div></div>
+  </aside>
+
+  <section class="editor">
+    <div class="toolbar-extra">
+      <span class="drop-hint" id="dropHint">Drop or paste images anywhere in the editor to upload.</span>
+    </div>
+    <textarea id="md"></textarea>
+  </section>
+</main>
+
+<dialog id="settingsDlg">
+  <h3>GitHub connection</h3>
+  <p>
+    Create a fine-grained personal access token at
+    <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener" style="color:var(--accent)">github.com/settings/personal-access-tokens</a>
+    for repo <b>kareemwalid/kareemwalid.github.io</b> with <b>Contents: Read &amp; write</b>.
+    The token is stored only in this browser's localStorage.
+  </p>
+  <div class="field">
+    <label for="sOwner" style="font-size:12px;color:var(--mute)">Owner</label>
+    <input id="sOwner" placeholder="kareemwalid">
+  </div>
+  <div class="field">
+    <label for="sRepo" style="font-size:12px;color:var(--mute)">Repo</label>
+    <input id="sRepo" placeholder="kareemwalid.github.io">
+  </div>
+  <div class="field">
+    <label for="sBranch" style="font-size:12px;color:var(--mute)">Branch</label>
+    <input id="sBranch" placeholder="main">
+  </div>
+  <div class="field">
+    <label for="sToken" style="font-size:12px;color:var(--mute)">Personal access token</label>
+    <input id="sToken" type="password" placeholder="github_pat_... or ghp_...">
+  </div>
+  <div class="field">
+    <label for="sImgDir" style="font-size:12px;color:var(--mute)">Image upload directory</label>
+    <input id="sImgDir" placeholder="assets/img/posts">
+  </div>
+  <div class="actions">
+    <button id="sTest" class="ghost">Test connection</button>
+    <button id="sClose" class="ghost">Cancel</button>
+    <button id="sSave" class="primary">Save</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const LS_KEY = 'kw_editor_settings_v1';
+  const DRAFT_KEY = 'kw_editor_draft_v1';
+
+  const defaultSettings = {
+    owner: 'kareemwalid',
+    repo:  'kareemwalid.github.io',
+    branch:'main',
+    token: '',
+    imgDir:'assets/img/posts'
+  };
+
+  let settings = loadSettings();
+  let currentFile = null;      // {path, sha} if editing an existing post
+  let easyMDE = null;
+
+  // ---------- helpers ----------
+  function loadSettings(){
+    try { return Object.assign({}, defaultSettings, JSON.parse(localStorage.getItem(LS_KEY) || '{}')); }
+    catch { return { ...defaultSettings }; }
+  }
+  function saveSettings(){ localStorage.setItem(LS_KEY, JSON.stringify(settings)); }
+
+  function toast(msg, kind=''){
+    const t = $('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + kind;
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.className = 'toast', 3200);
+  }
+
+  function slugify(s){
+    return (s || '')
+      .toLowerCase()
+      .replace(/['"]/g,'')
+      .replace(/[^a-z0-9]+/g,'-')
+      .replace(/^-+|-+$/g,'')
+      .slice(0, 80) || 'post';
+  }
+  function todayISO(){
+    const d = new Date();
+    const p = n => String(n).padStart(2,'0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+  }
+
+  function b64encodeUtf8(str){
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+  function b64decodeUtf8(b64){
+    try { return decodeURIComponent(escape(atob(b64.replace(/\s/g,'')))); }
+    catch { return atob(b64.replace(/\s/g,'')); }
+  }
+  function fileToBase64(file){
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(String(r.result).split(',')[1]);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  }
+
+  // ---------- GitHub API ----------
+  async function gh(path, opts={}){
+    if (!settings.token) throw new Error('No GitHub token. Open Settings.');
+    const r = await fetch(`https://api.github.com${path}`, {
+      ...opts,
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'Authorization': `Bearer ${settings.token}`,
+        ...(opts.body ? {'Content-Type':'application/json'} : {}),
+        ...(opts.headers||{})
+      }
+    });
+    if (!r.ok){
+      let body=''; try { body = await r.text(); } catch{}
+      throw new Error(`GitHub ${r.status}: ${body.slice(0,300)}`);
+    }
+    if (r.status === 204) return null;
+    return r.json();
+  }
+
+  async function listPosts(){
+    const data = await gh(`/repos/${settings.owner}/${settings.repo}/contents/_posts?ref=${encodeURIComponent(settings.branch)}`);
+    return (data || [])
+      .filter(x => x.type === 'file' && /\.(md|markdown)$/i.test(x.name))
+      .sort((a,b) => b.name.localeCompare(a.name));
+  }
+
+  async function readFile(path){
+    const data = await gh(`/repos/${settings.owner}/${settings.repo}/contents/${encodeURIComponent(path).replace(/%2F/g,'/')}?ref=${encodeURIComponent(settings.branch)}`);
+    return { sha: data.sha, path: data.path, text: b64decodeUtf8(data.content) };
+  }
+
+  async function putFile(path, contentStr, message, sha){
+    const body = {
+      message,
+      content: typeof contentStr === 'string' ? b64encodeUtf8(contentStr) : contentStr,
+      branch: settings.branch
+    };
+    if (sha) body.sha = sha;
+    return gh(`/repos/${settings.owner}/${settings.repo}/contents/${encodeURIComponent(path).replace(/%2F/g,'/')}`, {
+      method: 'PUT',
+      body: JSON.stringify(body)
+    });
+  }
+
+  async function putBinary(path, b64, message){
+    return gh(`/repos/${settings.owner}/${settings.repo}/contents/${encodeURIComponent(path).replace(/%2F/g,'/')}`, {
+      method: 'PUT',
+      body: JSON.stringify({ message, content: b64, branch: settings.branch })
+    });
+  }
+
+  // ---------- frontmatter ----------
+  function buildFrontmatter(){
+    const title = ($('fTitle').value || 'Untitled').trim();
+    const date  = $('fDate').value || todayISO();
+    const cats  = $('fCategories').value.split(',').map(s=>s.trim()).filter(Boolean);
+    const tags  = $('fTags').value.split(',').map(s=>s.trim()).filter(Boolean);
+    const pinned= $('fPinned').checked;
+    const yamlList = arr => '[' + arr.map(x => /[,\[\]:#&*!?|>'"%@`]/.test(x) ? JSON.stringify(x) : x).join(', ') + ']';
+    const lines = ['---'];
+    lines.push(`title: ${JSON.stringify(title)}`);
+    lines.push(`date: ${date}`);
+    if (cats.length) lines.push(`categories: ${yamlList(cats)}`);
+    if (tags.length) lines.push(`tags: ${yamlList(tags)}`);
+    if (pinned) lines.push('pin: true');
+    lines.push('---','');
+    return lines.join('\n');
+  }
+
+  function parseFrontmatter(text){
+    const m = text.match(/^---\n([\s\S]*?)\n---\n?/);
+    if (!m) return { meta:{}, body:text };
+    const meta = {};
+    for (const line of m[1].split(/\n/)){
+      const mm = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+      if (!mm) continue;
+      const k = mm[1]; let v = mm[2].trim();
+      if (/^\[.*\]$/.test(v)){
+        try { meta[k] = JSON.parse(v.replace(/'/g,'"')); }
+        catch { meta[k] = v.slice(1,-1).split(',').map(s=>s.trim().replace(/^["']|["']$/g,'')).filter(Boolean); }
+      } else if (/^".*"$|^'.*'$/.test(v)){
+        meta[k] = v.slice(1,-1);
+      } else {
+        meta[k] = v;
+      }
+    }
+    return { meta, body: text.slice(m[0].length) };
+  }
+
+  function targetFilename(){
+    const date = $('fDate').value || todayISO();
+    const slug = ($('fSlug').value || slugify($('fTitle').value)).trim();
+    return `_posts/${date}-${slug}.md`;
+  }
+
+  // ---------- image upload ----------
+  async function uploadImage(file){
+    const slug = ($('fSlug').value || slugify($('fTitle').value || 'post')).trim();
+    const safeName = file.name.replace(/[^A-Za-z0-9._-]+/g,'_');
+    const ts = Date.now().toString(36);
+    const path = `${settings.imgDir}/${slug}/${ts}-${safeName}`;
+    toast(`Uploading ${safeName}…`);
+    const b64 = await fileToBase64(file);
+    await putBinary(path, b64, `editor: upload image ${safeName}`);
+    const url = `/${path}`;
+    toast(`Uploaded ${safeName}`, 'ok');
+    return { url, alt: safeName.replace(/\.[^.]+$/,'') };
+  }
+
+  function insertAtCursor(cm, text){
+    const doc = cm.getDoc();
+    doc.replaceSelection(text, 'end');
+  }
+
+  async function handleFiles(files){
+    const cm = easyMDE.codemirror;
+    for (const f of files){
+      if (!f.type.startsWith('image/')) continue;
+      try {
+        const { url, alt } = await uploadImage(f);
+        insertAtCursor(cm, `\n![${alt}](${url})\n`);
+      } catch(e){ toast('Upload failed: ' + e.message, 'err'); }
+    }
+  }
+
+  // ---------- UI wiring ----------
+  function renderStatus(){
+    const s = $('repoStatus');
+    if (settings.token) s.textContent = `${settings.owner}/${settings.repo}@${settings.branch}`;
+    else s.textContent = 'not connected — click Settings';
+  }
+
+  function openSettings(){
+    $('sOwner').value  = settings.owner;
+    $('sRepo').value   = settings.repo;
+    $('sBranch').value = settings.branch;
+    $('sToken').value  = settings.token;
+    $('sImgDir').value = settings.imgDir;
+    $('settingsDlg').showModal();
+  }
+
+  function newPost(){
+    currentFile = null;
+    $('fTitle').value = '';
+    $('fSlug').value  = '';
+    $('fDate').value  = todayISO();
+    $('fCategories').value = '';
+    $('fTags').value  = '';
+    $('fPinned').checked = false;
+    easyMDE.value('');
+    toast('New post');
+  }
+
+  async function openPost(item){
+    try {
+      toast('Loading…');
+      const f = await readFile(item.path);
+      const { meta, body } = parseFrontmatter(f.text);
+      currentFile = { path: f.path, sha: f.sha };
+      $('fTitle').value = meta.title || item.name.replace(/\.md$/,'');
+      const dm = item.name.match(/^(\d{4}-\d{2}-\d{2})-(.+?)\.md$/);
+      $('fDate').value  = (typeof meta.date === 'string' ? meta.date.slice(0,10) : null) || (dm ? dm[1] : todayISO());
+      $('fSlug').value  = dm ? dm[2] : slugify(meta.title || '');
+      $('fCategories').value = Array.isArray(meta.categories) ? meta.categories.join(', ') : (meta.categories || '');
+      $('fTags').value       = Array.isArray(meta.tags) ? meta.tags.join(', ') : (meta.tags || '');
+      $('fPinned').checked   = String(meta.pin).toLowerCase() === 'true';
+      easyMDE.value(body);
+      toast('Loaded ' + item.name, 'ok');
+    } catch(e){ toast('Open failed: ' + e.message, 'err'); }
+  }
+
+  async function refreshPosts(){
+    const list = $('postsList');
+    if (!settings.token){ list.innerHTML = '<div style="color:var(--mute);font-size:12px">Connect GitHub to list posts.</div>'; return; }
+    list.innerHTML = '<div style="color:var(--mute);font-size:12px">Loading…</div>';
+    try {
+      const items = await listPosts();
+      list.innerHTML = '';
+      for (const it of items){
+        const el = document.createElement('div');
+        el.className = 'post-item';
+        const m = it.name.match(/^(\d{4}-\d{2}-\d{2})-(.+)\.md$/);
+        el.innerHTML = `<div>${(m ? m[2] : it.name).replace(/[-_]/g,' ')}</div><div class="meta">${m ? m[1] : ''}</div>`;
+        el.title = it.name;
+        el.addEventListener('click', () => openPost(it));
+        list.appendChild(el);
+      }
+      if (!items.length) list.innerHTML = '<div style="color:var(--mute);font-size:12px">No posts yet.</div>';
+    } catch(e){
+      list.innerHTML = `<div style="color:var(--danger);font-size:12px">${e.message}</div>`;
+    }
+  }
+
+  async function publish(){
+    if (!settings.token){ openSettings(); return; }
+    if (!$('fTitle').value.trim()){ toast('Title is required', 'err'); return; }
+    const body = easyMDE.value();
+    const content = buildFrontmatter() + body + (body.endsWith('\n') ? '' : '\n');
+    const path = targetFilename();
+    const btn = $('btnPublish'); btn.disabled = true; btn.textContent = 'Publishing…';
+    try {
+      // if editing and filename changed, delete old file after writing new one
+      const renaming = currentFile && currentFile.path !== path;
+      let sha = currentFile && !renaming ? currentFile.sha : undefined;
+      if (!sha){
+        try { const existing = await readFile(path); sha = existing.sha; } catch {}
+      }
+      const res = await putFile(path, content, (currentFile ? 'editor: update' : 'editor: new post') + ' ' + path.replace(/^_posts\//,''), sha);
+      currentFile = { path, sha: res.content.sha };
+      if (renaming){
+        try {
+          await gh(`/repos/${settings.owner}/${settings.repo}/contents/${currentFile.path === currentFile.path ? '' : ''}`); // noop
+        } catch{}
+      }
+      localStorage.removeItem(DRAFT_KEY);
+      toast('Published — GitHub Pages will deploy shortly', 'ok');
+      refreshPosts();
+    } catch(e){ toast('Publish failed: ' + e.message, 'err'); }
+    finally { btn.disabled = false; btn.textContent = 'Publish'; }
+  }
+
+  function saveDraftLocal(){
+    const draft = {
+      title: $('fTitle').value, slug: $('fSlug').value, date: $('fDate').value,
+      categories: $('fCategories').value, tags: $('fTags').value, pinned: $('fPinned').checked,
+      body: easyMDE.value(), currentFile
+    };
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    toast('Draft saved locally', 'ok');
+  }
+  function restoreDraftLocal(){
+    try {
+      const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+      if (!d) return;
+      $('fTitle').value = d.title || '';
+      $('fSlug').value  = d.slug || '';
+      $('fDate').value  = d.date || todayISO();
+      $('fCategories').value = d.categories || '';
+      $('fTags').value  = d.tags || '';
+      $('fPinned').checked = !!d.pinned;
+      easyMDE.value(d.body || '');
+      currentFile = d.currentFile || null;
+    } catch{}
+  }
+
+  // ---------- init ----------
+  window.addEventListener('load', () => {
+    easyMDE = new EasyMDE({
+      element: $('md'),
+      autofocus: true,
+      spellChecker: false,
+      status: ['lines','words','cursor'],
+      previewClass: ['editor-preview','markdown-body'],
+      renderingConfig: { singleLineBreaks:false, codeSyntaxHighlighting:true },
+      previewRender: (plain) => DOMPurify.sanitize(marked.parse(plain)),
+      toolbar: [
+        'bold','italic','heading','|',
+        'quote','unordered-list','ordered-list','|',
+        'link','image','table','code','horizontal-rule','|',
+        'preview','side-by-side','fullscreen','|',
+        {
+          name:'upload', action: () => {
+            const i = document.createElement('input');
+            i.type='file'; i.accept='image/*'; i.multiple = true;
+            i.onchange = () => handleFiles([...i.files]);
+            i.click();
+          },
+          className:'fa fa-upload', title:'Upload images'
+        },
+        'guide'
+      ]
+    });
+
+    // paste & drop image upload
+    const cmEl = easyMDE.codemirror.getWrapperElement();
+    cmEl.addEventListener('paste', (e) => {
+      const files = [...(e.clipboardData?.items || [])]
+        .filter(it => it.kind === 'file' && it.type.startsWith('image/'))
+        .map(it => it.getAsFile());
+      if (files.length){ e.preventDefault(); handleFiles(files); }
+    });
+    cmEl.addEventListener('dragover', (e) => { e.preventDefault(); $('dropHint').classList.add('drag'); });
+    cmEl.addEventListener('dragleave', () => $('dropHint').classList.remove('drag'));
+    cmEl.addEventListener('drop', (e) => {
+      e.preventDefault();
+      $('dropHint').classList.remove('drag');
+      const files = [...(e.dataTransfer?.files || [])];
+      if (files.length) handleFiles(files);
+    });
+
+    // keybindings
+    document.addEventListener('keydown', (e) => {
+      const mod = e.ctrlKey || e.metaKey;
+      if (mod && e.key === 'Enter'){ e.preventDefault(); publish(); }
+      else if (mod && e.key.toLowerCase() === 's'){ e.preventDefault(); saveDraftLocal(); }
+    });
+
+    // auto-slug from title (only when slug untouched)
+    let slugTouched = false;
+    $('fSlug').addEventListener('input', () => slugTouched = true);
+    $('fTitle').addEventListener('input', () => { if (!slugTouched) $('fSlug').value = slugify($('fTitle').value); });
+
+    // default date
+    $('fDate').value = todayISO();
+
+    $('btnSettings').addEventListener('click', openSettings);
+    $('btnPublish').addEventListener('click', publish);
+    $('btnSaveDraft').addEventListener('click', saveDraftLocal);
+    $('btnNewPost').addEventListener('click', newPost);
+    $('btnRefreshPosts').addEventListener('click', refreshPosts);
+
+    $('sClose').addEventListener('click', () => $('settingsDlg').close());
+    $('sSave').addEventListener('click', () => {
+      settings = {
+        owner:  $('sOwner').value.trim() || defaultSettings.owner,
+        repo:   $('sRepo').value.trim()  || defaultSettings.repo,
+        branch: $('sBranch').value.trim()|| defaultSettings.branch,
+        token:  $('sToken').value.trim(),
+        imgDir: $('sImgDir').value.trim()|| defaultSettings.imgDir
+      };
+      saveSettings();
+      $('settingsDlg').close();
+      renderStatus();
+      refreshPosts();
+      toast('Settings saved', 'ok');
+    });
+    $('sTest').addEventListener('click', async () => {
+      const prev = settings.token;
+      settings.token  = $('sToken').value.trim();
+      settings.owner  = $('sOwner').value.trim() || settings.owner;
+      settings.repo   = $('sRepo').value.trim()  || settings.repo;
+      settings.branch = $('sBranch').value.trim()|| settings.branch;
+      try {
+        const r = await gh(`/repos/${settings.owner}/${settings.repo}`);
+        toast(`Connected to ${r.full_name}`, 'ok');
+      } catch(e){ toast('Test failed: ' + e.message, 'err'); }
+      finally { settings.token = prev; }
+    });
+
+    restoreDraftLocal();
+    renderStatus();
+    refreshPosts();
+    if (!settings.token) setTimeout(openSettings, 300);
+  });
+})();
+</script>
+</body>
+</html>
