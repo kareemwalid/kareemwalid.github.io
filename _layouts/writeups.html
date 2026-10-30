@@ -14,8 +14,10 @@ layout: default
 
 <div class="writeups-list" id="writeupList">
   {% for post in site.posts %}
-  {% assign search_blob = post.title | append: ' ' | append: post.categories | join: ' ' | append: ' ' | append: post.tags | join: ' ' | downcase %}
-  <div class="writeup-item" data-search="{{ search_blob }}">
+  {% assign cat_str = post.categories | join: ' ' %}
+  {% assign tag_str = post.tags | join: ' ' %}
+  {% capture search_blob %}{{ post.title }} {{ cat_str }} {{ tag_str }}{% endcapture %}
+  <div class="writeup-item" data-search="{{ search_blob | downcase | xml_escape }}">
     <span class="writeup-date-tab">{{ post.date | date: '%Y-%m-%d' }}</span>
     <article class="writeup-card">
       <div class="writeup-card-top">
