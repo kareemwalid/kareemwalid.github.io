@@ -85,8 +85,8 @@ pageviews:
 #
 # Available options:
 #
-#     light — Use the light color scheme
-#     dark — Use the dark color scheme
+#     light - Use the light color scheme
+#     dark - Use the dark color scheme
 #
 theme_mode: # [light | dark]
 

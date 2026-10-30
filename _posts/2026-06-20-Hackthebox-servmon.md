@@ -57,8 +57,8 @@ ftp> dir
 
 We find two interesting files:
 
-- `Confidential.txt` — A memo from Nadine to Nathan mentioning she "left Passwords.txt on your Desktop"
-- `Notes to do.txt` — Nathan's notes say he changed the NVMS-1000 and NSClient++ passwords
+- `Confidential.txt` - A memo from Nadine to Nathan mentioning she "left Passwords.txt on your Desktop"
+- `Notes to do.txt` - Nathan's notes say he changed the NVMS-1000 and NSClient++ passwords
 
 ### Confidential.txt
 
@@ -79,7 +79,7 @@ Please remove it once you have finished with it.
 
 ---
 
-## NVMS-1000 — Directory Traversal
+## NVMS-1000 - Directory Traversal
 
 The web server on port 80 runs **NVMS-1000**, a video surveillance software known for a directory traversal vulnerability (CVE-2019-20085 style).
 
@@ -117,11 +117,11 @@ CheckExternalScripts = enabled
 Scheduler = enabled
 ```
 
-So NSClient++ is only accessible from `127.0.0.1` — we'll need an SSH tunnel.
+So NSClient++ is only accessible from `127.0.0.1` - we'll need an SSH tunnel.
 
 ---
 
-## SSH Access — Nadine
+## SSH Access - Nadine
 
 Using the password list from Nathan's desktop, we find Nadine's credentials:
 
@@ -148,7 +148,7 @@ d1fa48d75838996e2a237ef0ce1b69a5
 
 ---
 
-## Privilege Escalation — NSClient++
+## Privilege Escalation - NSClient++
 
 ### Overview
 
@@ -183,7 +183,7 @@ curl -sk -u admin:ew2x6SsGTxjRwXOT \
  {"id":"WEBServer","loaded":true}]
 ```
 
-We need **CheckExternalScripts** and **Scheduler** — both are already enabled.
+We need **CheckExternalScripts** and **Scheduler** - both are already enabled.
 
 ### Step 3: Create Malicious Script
 
@@ -276,9 +276,9 @@ curl -sk -u admin:ew2x6SsGTxjRwXOT \
 
 ## Key Takeaways
 
-- **Always check for anonymous FTP access** — it often leaks sensitive information
+- **Always check for anonymous FTP access** - it often leaks sensitive information
 - **NVMS-1000** has a known directory traversal vulnerability that allows reading arbitrary files as the `SYSTEM` user
-- **NSClient++ 0.5.2.35** has an authenticated privilege escalation through its REST API — the `/api/v1/scripts/ext/scripts/` endpoint lets users upload and execute batch scripts as `SYSTEM`
+- **NSClient++ 0.5.2.35** has an authenticated privilege escalation through its REST API - the `/api/v1/scripts/ext/scripts/` endpoint lets users upload and execute batch scripts as `SYSTEM`
 - **SSH local port forwarding** is essential when services are bound to `127.0.0.1`
 
 ---

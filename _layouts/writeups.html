@@ -1,0 +1,72 @@
+---
+layout: default
+---
+<div class="section-header">
+  <span class="section-prefix">// </span>
+  <h1 class="section-title">Writeups</h1>
+  <p class="section-sub">CTF solutions, research and writeups. Search by title, tag, or category.</p>
+</div>
+
+<div class="search-wrap">
+  <span class="search-icon">⌕</span>
+  <input id="writeupSearch" class="search-input" type="search" placeholder="Search writeups by title, tag, platform...">
+</div>
+
+<div class="writeups-list" id="writeupList">
+  {% for post in site.posts %}
+  {% assign search_blob = post.title | append: ' ' | append: post.categories | join: ' ' | append: ' ' | append: post.tags | join: ' ' | downcase %}
+  <div class="writeup-item" data-search="{{ search_blob }}">
+    <span class="writeup-date-tab">{{ post.date | date: '%Y-%m-%d' }}</span>
+    <article class="writeup-card">
+      <div class="writeup-card-top">
+        <div class="writeup-card-title-group">
+          <a href="{{ post.url | relative_url }}" class="writeup-item-title">{{ post.title }}</a>
+          {% if post.categories.size > 0 %}
+          <span class="writeup-platform">{{ post.categories | first }}</span>
+          {% endif %}
+          {% assign w = post.content | number_of_words %}
+          {% assign mins = w | divided_by: 220 | plus: 1 %}
+          <span class="writeup-readtime">{{ mins }} min read</span>
+        </div>
+        <a href="{{ post.url | relative_url }}" class="read-article">Read article</a>
+      </div>
+      {% if post.excerpt %}
+      <p class="writeup-summary">{{ post.excerpt | strip_html | truncate: 220 }}</p>
+      {% endif %}
+      <div class="writeup-tags">
+        {% for t in post.tags limit: 6 %}
+        {% assign ts = t | slugify %}
+        {% assign ci = forloop.index0 | modulo: 5 %}
+        {% assign tc = 'chip-red' %}
+        {% if ci == 1 %}{% assign tc = 'chip-cyan' %}{% endif %}
+        {% if ci == 2 %}{% assign tc = 'chip-purple' %}{% endif %}
+        {% if ci == 3 %}{% assign tc = 'chip-green' %}{% endif %}
+        {% if ci == 4 %}{% assign tc = 'chip-yellow' %}{% endif %}
+        <a class="chip {{ tc }}" href="{{ ts | prepend: '/tags/' | append: '/' | relative_url }}">{{ t | downcase }}</a>
+        {% endfor %}
+      </div>
+    </article>
+  </div>
+  {% endfor %}
+</div>
+
+<p id="noResults" class="section-sub" style="display:none; margin-top:2rem; text-align:center">No writeups match that query.</p>
+
+<script>
+  (() => {
+    const input = document.getElementById('writeupSearch');
+    const items = [...document.querySelectorAll('#writeupList .writeup-item')];
+    const none  = document.getElementById('noResults');
+    input.addEventListener('input', () => {
+      const q = input.value.trim().toLowerCase();
+      let visible = 0;
+      items.forEach(it => {
+        const match = !q || it.dataset.search.indexOf(q) !== -1;
+        it.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      none.style.display = visible === 0 ? 'block' : 'none';
+    });
+    input.focus();
+  })();
+</script>

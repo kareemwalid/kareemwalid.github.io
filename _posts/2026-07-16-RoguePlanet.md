@@ -1,5 +1,5 @@
 ---
-title: "Nightmare-Eclipse Series: RoguePlanet — Because Even Antivirus Has Race Conditions!"
+title: "Nightmare-Eclipse Series: RoguePlanet - Because Even Antivirus Has Race Conditions!"
 date: 2026-07-16
 categories: [Exploit Dev, Windows]
 tags: [windows, privilege-escalation, defender, lpe, kernel, race-condition, exploit-dev, cpp]
@@ -25,9 +25,9 @@ Windows has two API layers:
 | **Native API (NTAPI)** | `ntdll.dll` | `NtCreateFile`, `NtSetInformationFile` | Low-level kernel interface, partially documented |
 
 The NTAPI (`ntdll.dll`) is the **direct user-mode interface to the NT kernel**. Every Win32 API call eventually goes through ntdll → syscall into the kernel. Exploits use NTAPI directly because:
-1. **More control** — `NtSetInformationFile` with `FileRenameInformationEx` allows POSIX-style renames that Win32 `MoveFile` can't do
-2. **Undocumented** — Microsoft doesn't guarantee stability, making it harder for Defender to hook
-3. **Bypasses Win32-layer security checks** — some checks only exist in `kernel32`, not in `ntdll`
+1. **More control** - `NtSetInformationFile` with `FileRenameInformationEx` allows POSIX-style renames that Win32 `MoveFile` can't do
+2. **Undocumented** - Microsoft doesn't guarantee stability, making it harder for Defender to hook
+3. **Bypasses Win32-layer security checks** - some checks only exist in `kernel32`, not in `ntdll`
 
 The exploit resolves NTAPI functions at runtime:
 
@@ -43,7 +43,7 @@ NTSTATUS(WINAPI* _NtSetInformationFile)(...) =
 
 ### NTSTATUS
 
-Every NTAPI function returns `NTSTATUS` — a 32-bit code split into:
+Every NTAPI function returns `NTSTATUS` - a 32-bit code split into:
 
 | Bits | Field | Meaning |
 |------|-------|---------|
@@ -62,7 +62,7 @@ STATUS_NO_SUCH_DEVICE           = 0xC000000E
 STATUS_PENDING                  = 0x00000103  (Success severity, async operation)
 ```
 
-The check pattern is `if (stat == STATUS_SUCCESS)` — never `if (stat)`, because success codes aren't zero.
+The check pattern is `if (stat == STATUS_SUCCESS)` - never `if (stat)`, because success codes aren't zero.
 
 ---
 
@@ -78,7 +78,7 @@ The NT kernel has an **Object Manager** (`\SeObjectManager`) that maintains a hi
 \BaseNamedObjects\...     → Mutexes, events, semaphores
 ```
 
-The exploit uses this extensively — it opens `\Device` as a directory object and enumerates its children to find VSS volumes:
+The exploit uses this extensively - it opens `\Device` as a directory object and enumerates its children to find VSS volumes:
 
 ```cpp
 // RoguePlanet.cpp:77793-77810
@@ -99,7 +99,7 @@ Paths in NT can start with:
 | `\Device\` | Kernel device namespace | `\Device\CdRom0` |
 | `\GLOBAL??\` | Global DOS device directory | `\GLOBAL??\C:` |
 
-The exploit uses `\??\` paths consistently — these are the NT equivalent of Win32 paths:
+The exploit uses `\??\` paths consistently - these are the NT equivalent of Win32 paths:
 
 ```cpp
 // RoguePlanet.cpp:78751-78756
@@ -192,7 +192,7 @@ Every handle has an **access mask** specifying what operations are allowed:
 | `SYNCHRONIZE` | 0x00100000 | Allows waiting on the handle |
 | `FILE_READ_ATTRIBUTES` | 0x0080 | Read file metadata |
 
-The exploit opens files with `GENERIC_READ | GENERIC_WRITE | DELETE | SYNCHRONIZE` — it needs `DELETE` for rename operations and `SYNCHRONIZE` to wait on async operations.
+The exploit opens files with `GENERIC_READ | GENERIC_WRITE | DELETE | SYNCHRONIZE` - it needs `DELETE` for rename operations and `SYNCHRONIZE` to wait on async operations.
 
 ---
 
@@ -208,7 +208,7 @@ When creating/opening a file, the **disposition** controls what happens if the f
 | `FILE_OPEN_IF` | Open | Create |
 | `FILE_OVERWRITE_IF` | Overwrite | Create |
 
-`FILE_SUPERSEDE` is unique — it **atomically** replaces a file even if other handles are open. The old file is renamed to a temporary name, and the new file takes its place. The exploit uses this to force-open files that Defender might have locked.
+`FILE_SUPERSEDE` is unique - it **atomically** replaces a file even if other handles are open. The old file is renamed to a temporary name, and the new file takes its place. The exploit uses this to force-open files that Defender might have locked.
 
 ---
 
@@ -240,9 +240,9 @@ DeviceIoControl(hvss, FSCTL_REQUEST_OPLOCK, &opin, sizeof(opin), &opout, ..., &o
 WaitForSingleObject(ov.hEvent, INFINITE);  // Block until oplock breaks
 ```
 
-**OPLOCK_LEVEL_CACHE_READ** — the oplock owner can cache reads. When another open occurs, the oplock breaks → the event is signaled.
+**OPLOCK_LEVEL_CACHE_READ** - the oplock owner can cache reads. When another open occurs, the oplock breaks → the event is signaled.
 
-**OPLOCK_LEVEL_CACHE_HANDLE** — the oplock owner can cache handle state (metadata). When another handle operation occurs, the oplock breaks.
+**OPLOCK_LEVEL_CACHE_HANDLE** - the oplock owner can cache handle state (metadata). When another handle operation occurs, the oplock breaks.
 
 When the exploit takes an oplock on the VSS copy of the EICAR file, and then Defender's cleanup completes releasing the VSS, the oplock break signals "Defender is done." **This is the precise timing oracle.**
 
@@ -255,7 +255,7 @@ Windows supports multiple oplock levels:
 | Batch | `OPLOCK_LEVEL_CACHE_READ \| OPLOCK_LEVEL_CACHE_HANDLE \| OPLOCK_LEVEL_CACHE_WRITE` | Like Level 1, with batch semantics |
 | RH | `OPLOCK_LEVEL_CACHE_READ \| OPLOCK_LEVEL_CACHE_HANDLE` | Reads and handle metadata |
 
-The exploit uses **RH** level — it wants to know when anyone accesses the file (read or handle operation), which corresponds to Defender closing the VSS.
+The exploit uses **RH** level - it wants to know when anyone accesses the file (read or handle operation), which corresponds to Defender closing the VSS.
 
 ---
 
@@ -306,7 +306,7 @@ typedef struct {
 
 **Why junctions instead of symlinks?** Junctions (`IO_REPARSE_TAG_MOUNT_POINT`) don't require `SeCreateSymbolicLinkPrivilege`, which only administrators have. Junctions can be created by any user with write access to the directory.
 
-**Why `FSCTL_SET_REPARSE_POINT` instead of `CreateSymbolicLink`?** `FSCTL_SET_REPARSE_POINT` is a direct DeviceIoControl call that writes reparse data to the on-disk attribute. `CreateSymbolicLink` is a Win32 API that checks privileges. By using the NT path (`\??\...`) in the junction, the exploit can redirect to arbitrary locations — including `\Device\CdRom0` or `C:\Windows`.
+**Why `FSCTL_SET_REPARSE_POINT` instead of `CreateSymbolicLink`?** `FSCTL_SET_REPARSE_POINT` is a direct DeviceIoControl call that writes reparse data to the on-disk attribute. `CreateSymbolicLink` is a Win32 API that checks privileges. By using the NT path (`\??\...`) in the junction, the exploit can redirect to arbitrary locations - including `\Device\CdRom0` or `C:\Windows`.
 
 **FSCTL_DELETE_REPARSE_POINT** removes the reparse attribute. After the exploit overwrites Defender's temp file with its payload, it deletes the junction so Windows doesn't try to follow it during the WER task execution.
 
@@ -330,7 +330,7 @@ NTFS supports multiple data streams per file: `file:streamname`. Every file has 
 |--------|---------|
 | `::$DATA` (default) | Main file content |
 | `:Zone.Identifier:$DATA` | Mark of the Web (downloaded file origin) |
-| `:WDFOO` | Custom — exploit uses this as VSS marker |
+| `:WDFOO` | Custom - exploit uses this as VSS marker |
 
 ```cpp
 // RoguePlanet.cpp:78228-78248
@@ -360,10 +360,10 @@ HANDLE hpipe = CreateNamedPipe(L"\\\\.\\pipe\\RoguePlanet",
 
 Key concepts:
 
-- **`PIPE_ACCESS_DUPLEX`** — Both client and server can read/write
-- **`PIPE_WAIT`** — `ConnectNamedPipe` blocks until a client connects
-- **`PIPE_UNLIMITED_INSTANCES`** — Any number of pipe instances allowed
-- **`\\.\pipe\`** — The local named pipe filesystem (NPFS) mount point
+- **`PIPE_ACCESS_DUPLEX`** - Both client and server can read/write
+- **`PIPE_WAIT`** - `ConnectNamedPipe` blocks until a client connects
+- **`PIPE_UNLIMITED_INSTANCES`** - Any number of pipe instances allowed
+- **`\\.\pipe\`** - The local named pipe filesystem (NPFS) mount point
 
 When the SYSTEM-level payload connects back:
 
@@ -376,7 +376,7 @@ CloseHandle(hclient);
 LaunchConsoleInSessionId(sesid);
 ```
 
-**`GetNamedPipeServerSessionId`** retrieves the Terminal Services session ID from the pipe's server process — this is how the SYSTEM instance learns which session to spawn the console in.
+**`GetNamedPipeServerSessionId`** retrieves the Terminal Services session ID from the pipe's server process - this is how the SYSTEM instance learns which session to spawn the console in.
 
 ---
 
@@ -398,7 +398,7 @@ Every process has an **access token** containing its SID, group memberships, pri
 
 | Privilege | Constant | What it allows |
 |-----------|----------|----------------|
-| `SeTcbPrivilege` | `SE_TCB_NAME` | Act as part of the operating system — needed to set session ID |
+| `SeTcbPrivilege` | `SE_TCB_NAME` | Act as part of the operating system - needed to set session ID |
 | `SeAssignPrimaryTokenPrivilege` | `SE_ASSIGNPRIMARYTOKEN_NAME` | Assign primary token to a process |
 | `SeImpersonatePrivilege` | `SE_IMPERSONATE_NAME` | Impersonate another user |
 | `SeDebugPrivilege` | `SE_DEBUG_NAME` | Debug any process |
@@ -467,7 +467,7 @@ AttachVirtualDisk(hvirtdisk, NULL,
 
 **`VIRTUAL_STORAGE_TYPE_DEVICE_ISO`** tells the VDS to treat the file as an ISO image, creating a virtual CD-ROM device (`\Device\CdRomX`).
 
-**`ATTACH_VIRTUAL_DISK_FLAG_NO_DRIVE_LETTER`** prevents Windows from assigning a drive letter — the ISO appears only in the device namespace, making it less visible.
+**`ATTACH_VIRTUAL_DISK_FLAG_NO_DRIVE_LETTER`** prevents Windows from assigning a drive letter - the ISO appears only in the device namespace, making it less visible.
 
 ---
 
@@ -484,9 +484,9 @@ typedef struct {
 } FILE_RENAME_INFORMATION;
 ```
 
-**`RENAME_POSIX_SEMANTICS`** (0x40) makes the rename behave like POSIX `rename()` — it succeeds even if the file has other open handles (POSIX allows renaming open files). Without this flag, `STATUS_SHARING_VIOLATION` is returned.
+**`RENAME_POSIX_SEMANTICS`** (0x40) makes the rename behave like POSIX `rename()` - it succeeds even if the file has other open handles (POSIX allows renaming open files). Without this flag, `STATUS_SHARING_VIOLATION` is returned.
 
-The exploit's `MoveToTempDir` retries infinitely on `STATUS_SHARING_VIOLATION` — this is the **aggressive race** pattern:
+The exploit's `MoveToTempDir` retries infinitely on `STATUS_SHARING_VIOLATION` - this is the **aggressive race** pattern:
 
 ```cpp
 do {
@@ -520,7 +520,7 @@ if (pfni->FileNameLength / 2 != 24 || _wcsnicmp(&pfni->FileName[0], teststr, 8) 
     continue;
 ```
 
-The check `FileNameLength / 2 != 24` verifies that the filename is exactly 24 wide characters. Defender's quarantine temp files use the pattern `Temp\TMPXXXX.tmp` — 24 characters including the `Temp\` prefix.
+The check `FileNameLength / 2 != 24` verifies that the filename is exactly 24 wide characters. Defender's quarantine temp files use the pattern `Temp\TMPXXXX.tmp` - 24 characters including the `Temp\` prefix.
 
 ---
 
@@ -560,7 +560,7 @@ MpClient exports undocumented functions for programmatic scanning:
 | `MpCleanStart` | Start cleanup with a callback |
 | `MpHandleClose` | Close a handle |
 
-**Why this works:** MpClient is a documented component of Windows Defender, but `MpScanStart/MpCleanStart` are nominally for internal use. They don't require elevation — **any user can trigger a Defender scan programmatically**. This is the entry point: a standard user asks Defender to scan the EICAR file, and Defender obliges.
+**Why this works:** MpClient is a documented component of Windows Defender, but `MpScanStart/MpCleanStart` are nominally for internal use. They don't require elevation - **any user can trigger a Defender scan programmatically**. This is the entry point: a standard user asks Defender to scan the EICAR file, and Defender obliges.
 
 The scan resource path:
 
@@ -583,7 +583,7 @@ if (tinfo->ThreatStatus != 0x1) { /* EICAR not detected? */ }
 
 ### Windows Error Reporting (WER)
 
-WER is the crash/error reporting subsystem. It runs scheduled tasks for error reporting, including **QueueReporting** — a task that executes `wermgr.exe` (Windows Error Reporting Manager) when there are pending error reports.
+WER is the crash/error reporting subsystem. It runs scheduled tasks for error reporting, including **QueueReporting** - a task that executes `wermgr.exe` (Windows Error Reporting Manager) when there are pending error reports.
 
 The exploit writes its payload as `wermgr.exe` and uses a junction to redirect `%SystemRoot%\System32\wermgr.exe` to the payload. When the WER scheduled task triggers (which runs as SYSTEM), it executes the payload instead of the real wermgr.exe.
 
@@ -593,9 +593,9 @@ The exploit writes its payload as `wermgr.exe` and uses a junction to redirect `
 
 ---
 
-### PoseidonThread — CPU Saturation
+### PoseidonThread - CPU Saturation
 
-The "Poseidon" threads (named after the Greek god of the sea and earthquakes — fitting for a chaos technique) serve to **widen the race window**:
+The "Poseidon" threads (named after the Greek god of the sea and earthquakes - fitting for a chaos technique) serve to **widen the race window**:
 
 ```cpp
 // Generator thread (1 instance)
@@ -633,12 +633,12 @@ if (sysinfo.dwNumberOfProcessors > 3) {
 How this works:
 1. **Generator thread** continuously fills a shared buffer with random data via `BCryptGenRandom` (CNG API)
 2. **N writer threads** (one per CPU core) open a temp file with `FILE_FLAG_DELETE_ON_CLOSE` (auto-deletes on handle close), then loop writing the random buffer to it
-3. All threads run at `THREAD_PRIORITY_BELOW_NORMAL` — below normal priority so they don't freeze the system, but still consume CPU time
-4. Each iteration seeks to the start and writes 4096 bytes — constant file I/O
+3. All threads run at `THREAD_PRIORITY_BELOW_NORMAL` - below normal priority so they don't freeze the system, but still consume CPU time
+4. Each iteration seeks to the start and writes 4096 bytes - constant file I/O
 
 This saturates the disk subsystem and the CPU's I/O processing, causing Defender's scan/cleanup operations to take longer. A longer operation means a larger race window.
 
-**Why `FILE_FLAG_DELETE_ON_CLOSE`?** So the exploit doesn't need to clean up these temp files — they vanish when the handle closes.
+**Why `FILE_FLAG_DELETE_ON_CLOSE`?** So the exploit doesn't need to clean up these temp files - they vanish when the handle closes.
 
 **Why only on >3 processors?** Below 4 cores, you'd risk making the system unresponsive; the race window likely isn't needed on slow hardware anyway.
 
@@ -648,11 +648,11 @@ This saturates the disk subsystem and the CPU's I/O processing, causing Defender
 
 The first ~78000 lines contain:
 
-**1. NT API typedefs and macros** — All function pointer types for `NtCreateFile`, `NtSetInformationFile`, `NtDeleteFile`, etc. These match the exact signatures from the WDK but defined inline to avoid the WDK dependency.
+**1. NT API typedefs and macros** - All function pointer types for `NtCreateFile`, `NtSetInformationFile`, `NtDeleteFile`, etc. These match the exact signatures from the WDK but defined inline to avoid the WDK dependency.
 
-**2. SYSTEM_INFORMATION_CLASS enum** — A complete copy of every value from the WDK's `ntdll.h`. This is needed for `NtQuerySystemInformation` calls, which use info class codes.
+**2. SYSTEM_INFORMATION_CLASS enum** - A complete copy of every value from the WDK's `ntdll.h`. This is needed for `NtQuerySystemInformation` calls, which use info class codes.
 
-**3. rawData[917504]** — A pre-assembled ISO9660 filesystem image:
+**3. rawData[917504]** - A pre-assembled ISO9660 filesystem image:
 
 ```cpp
 unsigned char rawData[917504] = { 0x00, 0x00, 0x00, 0x00, ... };
@@ -668,12 +668,12 @@ unsigned char rawData[917504] = { 0x00, 0x00, 0x00, 0x00, ... };
 
 | Function | Lines | Purpose |
 |----------|-------|---------|
-| `main()` | 78549-79002 | Orchestrator — all phases |
+| `main()` | 78549-79002 | Orchestrator - all phases |
 | `MountISO()` | 78346-78392 | Extract embedded ISO and mount as virtual CD-ROM |
 | `WriteEicar()` | 78156-78257 | Create EICAR bait file with ADS marker stream |
 | `WDStartScan()` | 77986-78152 | Trigger Defender scan via MpClient API |
-| `PoseidonThread()` | 78521-78547 | Writer thread — CPU/disk thrashing |
-| `PoseidonGeneratorThread()` | 78508-78520 | Generator thread — feeds random data |
+| `PoseidonThread()` | 78521-78547 | Writer thread - CPU/disk thrashing |
+| `PoseidonGeneratorThread()` | 78508-78520 | Generator thread - feeds random data |
 | `MoveToTempDir()` | 78260-78297 | Aggressive rename with POSIX semantics |
 | `CreateJunction()` | 78299-78344 | Set reparse point on directory |
 | `ShadowCopyFinderThread()` | 77764-77945 | Poll NT Object Manager for new VSS volumes |
@@ -787,31 +787,31 @@ unsigned char rawData[917504] = { 0x00, 0x00, 0x00, 0x00, ... };
 
 | # | Vulnerability | Windows Component | Fixed |
 |---|--------------|-------------------|-------|
-| 1 | MpClient API accessible from user mode | Windows Defender | No — "by design" |
+| 1 | MpClient API accessible from user mode | Windows Defender | No - "by design" |
 | 2 | Defender's quarantine creates predictable temp filenames (`Temp\TMPXXXX.tmp`) | Defender | No |
-| 3 | Race window in Defender cleanup — files not locked during quarantine | Defender | No |
+| 3 | Race window in Defender cleanup - files not locked during quarantine | Defender | No |
 | 4 | Junction redirection not validated by file operations | NTFS I/O Manager | No |
 | 5 | Oplocks not handled by Defender during cleanup | Defender | No |
 | 6 | VSS exposed via `\Device` Object Manager directory | VSS / Object Manager | No |
 | 7 | WER task runs `wermgr.exe` without signature check | WER | No |
-| 8 | No access check on `CreateJunction` for non-admin | NTFS | No — "feature" |
+| 8 | No access check on `CreateJunction` for non-admin | NTFS | No - "feature" |
 
 ---
 
 ## Key Takeaways
 
-- **NTAPI over Win32 API** — Direct syscall interface provides more control and bypasses some security checks
-- **Oplocks as timing oracle** — A file-system primitive for network caching, repurposed as a synchronizaton signal
-- **VSS as side-channel** — Volume Shadow Copies, normally a backup feature, reveal Defender's activity timeline
-- **Junction chains** — Reparse points are trustless; any user can redirect paths, and system components don't verify
-- **CPU saturation widens race windows** — Poseidon threads are an elegant way to increase exploit reliability
-- **Self-replicating binary** — Same EXE handles both user-level exploit and SYSTEM-level payload roles
+- **NTAPI over Win32 API** - Direct syscall interface provides more control and bypasses some security checks
+- **Oplocks as timing oracle** - A file-system primitive for network caching, repurposed as a synchronizaton signal
+- **VSS as side-channel** - Volume Shadow Copies, normally a backup feature, reveal Defender's activity timeline
+- **Junction chains** - Reparse points are trustless; any user can redirect paths, and system components don't verify
+- **CPU saturation widens race windows** - Poseidon threads are an elegant way to increase exploit reliability
+- **Self-replicating binary** - Same EXE handles both user-level exploit and SYSTEM-level payload roles
 
 ---
 
 ## The Human Side
 
-The author's pain is visible in the code — a raw comment at line 78978:
+The author's pain is visible in the code - a raw comment at line 78978:
 
 ```cpp
 // I really hate doing this, I really do, but I don't have any choices,
@@ -823,7 +823,7 @@ And the README:
 
 > *"The race condition part is a bit interesting, I believe (but not sure) that a redesign of the PoC can make it achieve a 100% success rate regardless of the conditions but honestly I'm done with this bug."*
 
-RoguePlanet is a testament to the depth of Windows internals knowledge required for modern privilege escalation. It chains a dozen low-level mechanisms — none of which are "vulnerabilities" in isolation — into a SYSTEM shell.
+RoguePlanet is a testament to the depth of Windows internals knowledge required for modern privilege escalation. It chains a dozen low-level mechanisms - none of which are "vulnerabilities" in isolation - into a SYSTEM shell.
 
 ---
 

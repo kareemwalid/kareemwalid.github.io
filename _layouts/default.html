@@ -19,11 +19,11 @@
       </a>
       <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
       <ul class="nav-links" id="navLinks">
-        <li><a class="nav-link{% if page.url == '/' %} active{% endif %}" href="{{ '/' | relative_url }}">About</a></li>
-        <li><a class="nav-link{% if page.url contains '/archives' %} active{% endif %}" href="{{ '/archives/' | relative_url }}">Archive</a></li>
-        <li><a class="nav-link{% if page.url contains '/posts' or page.layout == 'tag' or page.layout == 'category' %} active{% endif %}" href="{{ '/archives/' | relative_url }}">Writeups</a></li>
+        <li><a class="nav-link{% if page.url == '/' %} active{% endif %}" href="{{ '/' | relative_url }}">Home</a></li>
+        <li><a class="nav-link{% if page.url == '/writeups/' or page.layout == 'post' or page.layout == 'tag' or page.layout == 'category' %} active{% endif %}" href="{{ '/writeups/' | relative_url }}">Writeups</a></li>
+        <li><a class="nav-link{% if page.url == '/archives/' %} active{% endif %}" href="{{ '/archives/' | relative_url }}">Archive</a></li>
         <li><a class="nav-link{% if page.url == '/tags/' %} active{% endif %}" href="{{ '/tags/' | relative_url }}">Tags</a></li>
-        <li><a class="nav-link{% if page.url contains '/about' %} active{% endif %}" href="{{ '/about/' | relative_url }}">Me</a></li>
+        <li><a class="nav-link{% if page.url contains '/about' %} active{% endif %}" href="{{ '/about/' | relative_url }}">About</a></li>
       </ul>
     </div>
   </nav>
