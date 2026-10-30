@@ -30,7 +30,7 @@ layout: default
     <dt>Author</dt><dd>Kareem Walid</dd>
     <dt>Words</dt><dd>~{{ words }} ({{ mins }} min)</dd>
     {% if page.tags.size > 0 %}
-    <dt>Tags</dt><dd>{% for t in page.tags %}{% assign ts = t | slugify %}{% cycle 'col': 'chip-red','chip-cyan','chip-purple','chip-green','chip-yellow' as tc %}<a class="chip {{ tc }}" href="{{ ts | prepend: '/tags/' | append: '/' | relative_url }}">{{ t | downcase }}</a> {% endfor %}</dd>
+    <dt>Tags</dt><dd>{% for t in page.tags %}{% assign ts = t | slugify %}{% assign ci = forloop.index0 | modulo: 5 %}{% assign tc = 'chip-red' %}{% if ci == 1 %}{% assign tc = 'chip-cyan' %}{% endif %}{% if ci == 2 %}{% assign tc = 'chip-purple' %}{% endif %}{% if ci == 3 %}{% assign tc = 'chip-green' %}{% endif %}{% if ci == 4 %}{% assign tc = 'chip-yellow' %}{% endif %}<a class="chip {{ tc }}" href="{{ ts | prepend: '/tags/' | append: '/' | relative_url }}">{{ t | downcase }}</a> {% endfor %}</dd>
     {% endif %}
   </dl>
 </header>

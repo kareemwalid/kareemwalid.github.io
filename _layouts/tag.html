@@ -24,7 +24,12 @@ layout: default
       <div class="writeup-tags">
         {% for t in post.tags limit: 5 %}
         {% assign ts = t | slugify %}
-        {% cycle 'col': 'chip-red','chip-cyan','chip-purple','chip-green','chip-yellow' as tc %}
+        {% assign ci = forloop.index0 | modulo: 5 %}
+        {% assign tc = 'chip-red' %}
+        {% if ci == 1 %}{% assign tc = 'chip-cyan' %}{% endif %}
+        {% if ci == 2 %}{% assign tc = 'chip-purple' %}{% endif %}
+        {% if ci == 3 %}{% assign tc = 'chip-green' %}{% endif %}
+        {% if ci == 4 %}{% assign tc = 'chip-yellow' %}{% endif %}
         <a class="chip {{ tc }}" href="{{ ts | prepend: '/tags/' | append: '/' | relative_url }}">{{ t | downcase }}</a>
         {% endfor %}
       </div>
