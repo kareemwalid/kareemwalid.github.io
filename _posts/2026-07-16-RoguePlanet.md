@@ -2,7 +2,7 @@
 title: "Nightmare-Eclipse Series: RoguePlanet — Because Even Antivirus Has Race Conditions!"
 date: 2026-07-16
 categories: [Exploit Dev, Windows]
-tags: [windows, privilege-escalation, defender, lpe, kernel, race-condition]
+tags: [windows, privilege-escalation, defender, lpe, kernel, race-condition, exploit-dev, cpp]
 ---
 
 ## Description
