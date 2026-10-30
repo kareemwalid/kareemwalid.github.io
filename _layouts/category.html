@@ -1,0 +1,31 @@
+---
+layout: default
+---
+<div class="post-view">
+  <div class="breadcrumb">
+    <span class="amber">kareem@ops</span>:<span>~/categories</span>/<span class="amber">{{ page.title | slugify }}</span>
+    <span class="sep">·</span>
+    <a class="back" href="{{ '/categories/' | relative_url }}">← all categories</a>
+  </div>
+
+  <header class="post-head">
+    <div class="cat">category · archive</div>
+    <h1>[<em>{{ page.title | downcase }}</em>]</h1>
+    <div class="meta-row"><span>▮ <b>{{ page.posts.size }}</b> {% if page.posts.size == 1 %}post{% else %}posts{% endif %}</span></div>
+  </header>
+
+  <ol class="post-list">
+    {% for post in page.posts %}
+    <li class="post">
+      <div class="idx">{% assign n = forloop.rindex %}{% if n < 10 %}0{% endif %}{{ n }}</div>
+      <div class="date">{{ post.date | date: '%Y · %m · %d' }}</div>
+      <a class="title" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+      <div class="meta">
+        {% for t in post.tags limit: 3 %}
+        <a class="tag" href="{{ '/tags/' | append: t | slugify | append: '/' | relative_url }}">{{ t | downcase }}</a>
+        {% endfor %}
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+</div>

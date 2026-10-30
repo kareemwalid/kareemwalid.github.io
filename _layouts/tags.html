@@ -1,0 +1,23 @@
+---
+layout: default
+---
+<div class="post-view">
+  <div class="breadcrumb">
+    <span class="amber">kareem@ops</span>:<span>~</span>/<span class="amber">tags</span>
+  </div>
+
+  <header class="post-head">
+    <div class="cat">index · tags</div>
+    <h1>all <em>tags</em></h1>
+  </header>
+
+  <div class="chip-row">
+    {% assign tags = site.tags | sort %}
+    {% for t in tags %}
+    <a href="{{ '/tags/' | append: t[0] | slugify | append: '/' | relative_url }}">
+      <span>{{ t[0] | downcase }}</span>
+      <span class="count">· {{ t[1].size }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>

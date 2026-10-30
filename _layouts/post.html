@@ -1,0 +1,84 @@
+---
+layout: default
+---
+<div class="post-view">
+  <div class="breadcrumb">
+    <span class="amber">kareem@ops</span>:<span>~/posts</span>/<span class="amber">{{ page.url | split: '/' | last }}</span>
+    <span class="sep">·</span>
+    <a class="back" href="{{ '/' | relative_url }}">← back to index</a>
+  </div>
+
+  <article>
+    <div>
+      <header class="post-head">
+        {% if page.categories.size > 0 %}
+        <div class="cat">
+          {% for cat in page.categories %}{{ cat | downcase }}{% unless forloop.last %} · {% endunless %}{% endfor %}
+          · {{ page.date | date: '%Y · %m · %d' }}
+        </div>
+        {% endif %}
+        <h1>{{ page.title }}</h1>
+        <div class="meta-row">
+          {% assign words = content | number_of_words %}
+          {% assign mins = words | divided_by: 220 | plus: 1 %}
+          <span>▮ <b>{{ mins }} min</b> read</span>
+          <span>▮ <b>~{{ words }}</b> words</span>
+          {% if page.tags.size > 0 %}
+          <span>▮ {% for tag in page.tags %}<b>{{ tag | downcase }}</b>{% unless forloop.last %} · {% endunless %}{% endfor %}</span>
+          {% endif %}
+        </div>
+      </header>
+
+      <div class="prose">
+        {{ content }}
+      </div>
+    </div>
+
+    <aside class="toc">
+      <h4>§ outline</h4>
+      <ol id="toc"></ol>
+
+      <h4 style="margin-top:28px">navigate</h4>
+      <div class="nav">
+        {% if page.previous %}
+        <span class="label">← previous</span>
+        <a href="{{ page.previous.url | relative_url }}">{{ page.previous.title | truncate: 55 }}</a>
+        {% endif %}
+        {% if page.next %}
+        <span class="label" style="margin-top:8px">next →</span>
+        <a href="{{ page.next.url | relative_url }}">{{ page.next.title | truncate: 55 }}</a>
+        {% endif %}
+        {% unless page.previous or page.next %}
+        <span class="label">— end of record —</span>
+        {% endunless %}
+      </div>
+    </aside>
+  </article>
+</div>
+
+<script>
+  (() => {
+    const toc = document.getElementById('toc');
+    const headings = document.querySelectorAll('.prose h1, .prose h2');
+    if (!headings.length) { toc.parentNode.firstElementChild.style.display = 'none'; toc.style.display='none'; return; }
+    headings.forEach((h, i) => {
+      if (!h.id) h.id = 'h-' + i;
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.textContent = h.textContent.replace(/^§\s*/, '').trim();
+      a.href = '#' + h.id;
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+
+    const items = [...toc.querySelectorAll('li')];
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const id = e.target.id;
+        items.forEach(li => li.classList.toggle('active', li.querySelector('a').getAttribute('href') === '#' + id));
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    headings.forEach(h => obs.observe(h));
+  })();
+</script>

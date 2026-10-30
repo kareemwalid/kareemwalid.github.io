@@ -1,0 +1,48 @@
+---
+layout: default
+---
+<section class="hero">
+  <div class="ident">
+    <span class="eyebrow">Operator · Cairo</span>
+    <h1 class="ident-name">Kareem <em>Walid</em></h1>
+    <p class="tagline">
+      <b>Offensive security engineer.</b> Writeups on Windows internals,
+      red team methodology, and the long nights between a theory and a
+      working lab — assembled slowly, cited plainly, kept honest.
+    </p>
+    {% if site.posts.size > 0 %}
+    <a class="cta" href="{{ site.posts.first.url | relative_url }}">read latest · {{ site.posts.first.title | truncate: 42 }} &nbsp;→</a>
+    {% endif %}
+  </div>
+
+  <aside class="now" aria-label="Current status">
+    <h3>now</h3>
+    <dl>
+      <dt>focus</dt><dd><span class="t">long-form writeups</span></dd>
+      <dt>reading</dt><dd>Windows Internals, 7e</dd>
+      <dt>stack</dt><dd><span class="k">C++</span> · <span class="k">Rust</span> · <span class="k">PowerShell</span></dd>
+      <dt>loc</dt><dd>Cairo, EG · <span class="t">GMT+2</span></dd>
+      <dt>social</dt><dd><span class="k">github</span>/kareemwalid · <span class="k">x</span>/kareemwalid17</dd>
+    </dl>
+  </aside>
+</section>
+
+<div class="posts-head">
+  <h2>&gt; writeups</h2>
+  <span class="count">{{ site.posts.size }} entries · sorted recent</span>
+</div>
+
+<ol class="post-list">
+  {% for post in site.posts %}
+  <li class="post">
+    <div class="idx">{% assign n = forloop.rindex %}{% if n < 10 %}0{% endif %}{{ n }}</div>
+    <div class="date">{{ post.date | date: '%Y · %m · %d' }}</div>
+    <a class="title" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+    <div class="meta">
+      {% for tag in post.tags limit: 3 %}
+      <a class="tag" href="{{ '/tags/' | append: tag | slugify | append: '/' | relative_url }}">{{ tag | downcase }}</a>
+      {% endfor %}
+    </div>
+  </li>
+  {% endfor %}
+</ol>

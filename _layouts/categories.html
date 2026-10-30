@@ -1,0 +1,23 @@
+---
+layout: default
+---
+<div class="post-view">
+  <div class="breadcrumb">
+    <span class="amber">kareem@ops</span>:<span>~</span>/<span class="amber">categories</span>
+  </div>
+
+  <header class="post-head">
+    <div class="cat">index · categories</div>
+    <h1>all <em>categories</em></h1>
+  </header>
+
+  <div class="chip-row">
+    {% assign cats = site.categories | sort %}
+    {% for c in cats %}
+    <a href="{{ '/categories/' | append: c[0] | slugify | append: '/' | relative_url }}">
+      <span>{{ c[0] | downcase }}</span>
+      <span class="count">· {{ c[1].size }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>

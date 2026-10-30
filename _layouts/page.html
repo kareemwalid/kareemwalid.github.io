@@ -1,0 +1,19 @@
+---
+layout: default
+---
+<div class="post-view">
+  <div class="breadcrumb">
+    <span class="amber">kareem@ops</span>:<span>~</span>/<span class="amber">{{ page.title | downcase }}</span>
+  </div>
+
+  <article>
+    <div>
+      <header class="post-head">
+        <h1>{{ page.title | default: page.url | remove: '/' }}</h1>
+      </header>
+      <div class="prose">
+        {{ content }}
+      </div>
+    </div>
+  </article>
+</div>
