@@ -1,25 +1,31 @@
 ---
 layout: default
 ---
-<div class="crumb">
-  <span class="amber">kareem.zine</span>
-  <span class="sep">::</span>
-  <a href="{{ '/categories/' | relative_url }}">cats</a>
-  <span class="sep">::</span>
-  <span class="amber">{{ page.title | slugify }}</span>
+<div class="section-header">
+  <span class="section-prefix">// category · </span>
+  <h1 class="section-title">{{ page.title | downcase }}</h1>
+  <p class="section-sub">{{ page.posts.size }} {% if page.posts.size == 1 %}entry filed{% else %}entries filed{% endif %} under this category.</p>
 </div>
 
-<div class="box">
-  <h2>CAT · {{ page.title | upcase }}</h2>
-  <div class="box-sub">{{ page.posts.size }} {% if page.posts.size == 1 %}entry{% else %}entries{% endif %} filed under this category.</div>
-  <ol class="toc">
-    {% for post in page.posts %}
-    {% assign n = forloop.index %}
-    <li>
-      <span class="n">0x{% if n < 16 %}0{% endif %}{{ n }}</span>
-      <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>
-      <span class="a">{{ post.date | date: '%Y-%m-%d' }}</span>
-    </li>
-    {% endfor %}
-  </ol>
+<div class="writeups-list">
+  {% for post in page.posts %}
+  <div class="writeup-item">
+    <span class="writeup-date-tab">▮ {{ post.date | date: '%Y-%m-%d' }}</span>
+    <article class="writeup-card">
+      <div class="writeup-card-top">
+        <div class="writeup-card-title-group">
+          <a href="{{ post.url | relative_url }}" class="writeup-item-title">{{ post.title }}</a>
+        </div>
+        <a href="{{ post.url | relative_url }}" class="read-article">Read</a>
+      </div>
+      <div class="writeup-tags">
+        {% for t in post.tags limit: 5 %}
+        {% assign ts = t | slugify %}
+        {% cycle 'col': 'chip-red','chip-cyan','chip-purple','chip-green','chip-yellow' as tc %}
+        <a class="chip {{ tc }}" href="{{ ts | prepend: '/tags/' | append: '/' | relative_url }}">{{ t | downcase }}</a>
+        {% endfor %}
+      </div>
+    </article>
+  </div>
+  {% endfor %}
 </div>

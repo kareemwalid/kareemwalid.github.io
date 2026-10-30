@@ -1,48 +1,129 @@
 ---
 layout: default
 ---
-<section class="masthead">
-  <div class="top">++  Phrack Inc. inspired  ++</div>
-  <h1 class="title">KAREEM.ZINE</h1>
-  <div class="vol">Volume Zero, Issue 0x{{ site.posts.size | prepend: '0' | slice: -2, 2 }} ~ compiled {{ site.time | date: '%Y-%m-%d' }}</div>
+<section class="hero" id="section-about">
+  <aside class="hero-terminal">
+    <div class="terminal-bar">
+      <span class="dot dot-red"></span>
+      <span class="dot dot-yellow"></span>
+      <span class="dot dot-green"></span>
+      <span class="terminal-title">kareem@kali:~  (interactive shell)</span>
+    </div>
+    <div class="terminal-body">
+      <div class="term-line"><span class="term-prompt">$</span> <span class="term-cmd">whoami</span></div>
+      <div class="term-output accent">kareem — Offensive Security Engineer</div>
+
+      <div class="term-line"><span class="term-prompt">$</span> <span class="term-cmd">cat focus.txt</span></div>
+      <div class="term-output">
+        Windows internals &middot; Exploit development<br>
+        Red team ops &middot; Malware reversing<br>
+        Threat hunting &middot; CTF
+      </div>
+
+      <div class="term-line"><span class="term-prompt">$</span> <span class="term-cmd">ls writeups/</span></div>
+      <div class="term-output">{{ site.posts.size }} entries · last: {{ site.posts.first.date | date: '%Y-%m-%d' }}</div>
+
+      <div class="term-line"><span class="term-prompt">$</span> <span class="typing-cursor">▮</span></div>
+    </div>
+  </aside>
+
+  <div class="hero-content">
+    <span class="hero-badge">Offensive Security Engineer</span>
+    <h1 class="hero-name">Kareem Walid</h1>
+    <p class="hero-tagline">Breaking systems. Writing it down. Keeping it honest.</p>
+    <p class="hero-bio">
+      I'm a Cairo-based security engineer focused on Windows internals, red team
+      operations, malware reversing, and the long nights between a theory and a
+      working lab. This site is the record — writeups, dossiers, and tooling,
+      assembled slowly and cited plainly.
+    </p>
+
+    <div class="hero-cta-btns">
+      <a class="btn btn-primary" href="{{ '/archives/' | relative_url }}">
+        <span>Explore Archive</span>
+      </a>
+      {% if site.posts.size > 0 %}
+      <a class="btn btn-outline" href="{{ site.posts.first.url | relative_url }}">
+        <span>Read latest writeup</span>
+      </a>
+      {% endif %}
+    </div>
+
+    <div class="skills-grid">
+      <div>
+        <div class="skill-group-title">Specialties</div>
+        <div class="skill-tags">
+          <span class="chip chip-red">Windows Internals</span>
+          <span class="chip chip-red">Exploit Dev</span>
+          <span class="chip chip-red">Red Teaming</span>
+          <span class="chip chip-red">Malware Reversing</span>
+        </div>
+      </div>
+      <div>
+        <div class="skill-group-title">Toolchain</div>
+        <div class="skill-tags">
+          <span class="chip chip-cyan">IDA Pro</span>
+          <span class="chip chip-cyan">x64dbg</span>
+          <span class="chip chip-cyan">WinDbg</span>
+          <span class="chip chip-cyan">Ghidra</span>
+          <span class="chip chip-cyan">Burp</span>
+        </div>
+      </div>
+      <div>
+        <div class="skill-group-title">Platforms &amp; Certs</div>
+        <div class="skill-tags">
+          <span class="chip chip-purple">HackTheBox</span>
+          <span class="chip chip-purple">OSCP in progress</span>
+          <span class="chip chip-green">CTF regular</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="social-links">
+      <a class="social-link" href="https://github.com/kareemwalid">GitHub</a>
+      <a class="social-link" href="https://twitter.com/kareemwalid17">Twitter / X</a>
+    </div>
+  </div>
 </section>
 
-<div class="box">
-  <h2>0x00  Intro</h2>
-  <div class="intro">
-    Writeups, exploit development notes, and the long-form content the modern web
-    has mostly forgotten. If you remember <b>.nfo files</b> and ANSI dividers,
-    you'll feel at home. If you don't, welcome — pull up a chair, dim the lights.
+<section class="latest-strip">
+  <div class="section-header">
+    <div>
+      <span class="section-prefix">// </span>
+      <span class="section-title">latest writeups</span>
+    </div>
+    <a class="btn btn-ghost" href="{{ '/archives/' | relative_url }}">All → archive</a>
   </div>
-  <div class="meta-row">
-    <span>editor: <b>kareem walid</b></span>
-    <span>location: <b>cairo, eg</b></span>
-    <span>stack: <b>C++ · Rust · PowerShell</b></span>
-    <span>focus: <b>windows internals</b></span>
-  </div>
-</div>
 
-<div class="box">
-  <h2>0x01  Contents</h2>
-  <div class="box-sub">{{ site.posts.size }} entries, sorted most recent first.</div>
-  <ol class="toc">
-    {% for post in site.posts %}
-    {% assign n = forloop.rindex %}
-    <li>
-      <span class="n">0x{% if n < 16 %}0{% endif %}{{ n | to_integer | plus: 0 }}</span>
-      <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>
-      <span class="a">{{ post.date | date: '%Y-%m-%d' }}</span>
-    </li>
+  <div class="writeups-list">
+    {% for post in site.posts limit: 5 %}
+    <div class="writeup-item">
+      <span class="writeup-date-tab">▮ {{ post.date | date: '%Y-%m-%d' }}</span>
+      <article class="writeup-card">
+        <div class="writeup-card-top">
+          <div class="writeup-card-title-group">
+            <a href="{{ post.url | relative_url }}" class="writeup-item-title">{{ post.title }}</a>
+            {% if post.categories.size > 0 %}
+            <span class="writeup-platform">{{ post.categories | first }}</span>
+            {% endif %}
+            {% assign w = post.content | number_of_words %}
+            {% assign mins = w | divided_by: 220 | plus: 1 %}
+            <span class="writeup-readtime">{{ mins }} min read</span>
+          </div>
+          <a href="{{ post.url | relative_url }}" class="read-article">Read article</a>
+        </div>
+        {% if post.excerpt %}
+        <p class="writeup-summary">{{ post.excerpt | strip_html | truncate: 220 }}</p>
+        {% endif %}
+        <div class="writeup-tags">
+          {% for t in post.tags limit: 5 %}
+          {% assign ts = t | slugify %}
+          {% cycle 'col': 'chip-red','chip-cyan','chip-purple','chip-green','chip-yellow' as tc %}
+          <a class="chip {{ tc }}" href="{{ ts | prepend: '/tags/' | append: '/' | relative_url }}">{{ t | downcase }}</a>
+          {% endfor %}
+        </div>
+      </article>
+    </div>
     {% endfor %}
-  </ol>
-</div>
-
-<div class="box">
-  <h2>0x02  Shouts</h2>
-  <div class="intro">
-    Thanks to the folks on the inside who read drafts, broke them, and sent them back
-    with better questions. The internet is better with you in it.
   </div>
-</div>
-
-<div class="shout">::: <span class="amber">end of file</span> :::</div>
+</section>

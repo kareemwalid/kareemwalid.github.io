@@ -1,23 +1,19 @@
 ---
 layout: default
 ---
-<div class="crumb">
-  <span class="amber">kareem.zine</span>
-  <span class="sep">::</span>
-  <span>categories</span>
+<div class="section-header">
+  <span class="section-prefix">// </span>
+  <h1 class="section-title">categories</h1>
+  <p class="section-sub">Every category across the catalogue, with entry counts.</p>
 </div>
 
-<div class="box">
-  <h2>0x00  Category index</h2>
-  <div class="box-sub">All categories across the catalogue, with entry counts.</div>
-  <div class="chip-row">
-    {% assign cats = site.categories | sort %}
-    {% for c in cats %}
-    {% assign cs = c[0] | slugify %}
-    <a href="{{ cs | prepend: '/categories/' | append: '/' | relative_url }}">
-      <span>{{ c[0] | downcase }}</span>
-      <span class="count">{{ c[1].size }}</span>
-    </a>
-    {% endfor %}
-  </div>
+<div class="chip-grid">
+  {% assign cats = site.categories | sort %}
+  {% for c in cats %}
+  {% assign cs = c[0] | slugify %}
+  <a href="{{ cs | prepend: '/categories/' | append: '/' | relative_url }}">
+    <span>{{ c[0] | downcase }}</span>
+    <span class="count">{{ c[1].size }}</span>
+  </a>
+  {% endfor %}
 </div>
