@@ -1,19 +1,19 @@
 ---
 layout: default
 ---
-<div class="post-view">
-  <div class="breadcrumb">
-    <span class="amber">kareem@ops</span>:<span>~</span>/<span class="amber">{{ page.title | downcase }}</span>
-  </div>
+<div class="crumb">
+  <span class="amber">kareem.zine</span>
+  <span class="sep">::</span>
+  <a href="{{ '/' | relative_url }}">index</a>
+  <span class="sep">::</span>
+  <span>{{ page.url | replace: '/', '' }}</span>
+</div>
 
-  <article>
-    <div>
-      <header class="post-head">
-        <h1>{{ page.title | default: page.url | remove: '/' }}</h1>
-      </header>
-      <div class="prose">
-        {{ content }}
-      </div>
-    </div>
+<div class="box">
+  <h2>{{ page.title | default: page.url | replace: '/', '' | capitalize }}</h2>
+  <article class="prose">
+    {{ content }}
   </article>
 </div>
+
+<div class="shout">::: <span class="amber">end of file</span> :::</div>
