@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Kareem's Blog Editor</title>
+<title>Kareem's Writing Desk</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
@@ -15,21 +15,22 @@
 
 <style>
   :root{
-    --bg:#11131a;
-    --panel:#171a24;
-    --panel-2:#1e2230;
-    --panel-hi:#262b3b;
+    --bg:#0b0e14;
+    --panel:#11141c;
+    --panel-2:#171b26;
+    --panel-hi:#1f2432;
     --border:rgba(255,255,255,.07);
     --border-strong:rgba(255,255,255,.14);
     --text:#e9ecf4;
     --text-dim:#b4bbcc;
     --mute:#7a8299;
-    --accent:#7aa2ff;
-    --accent-ink:#0b1020;
-    --accent-dim:rgba(122,162,255,.16);
-    --accent-2:#8edab0;
-    --danger:#ff8a94;
+    --accent:#58a6ff;
+    --accent-ink:#07090f;
+    --accent-dim:rgba(88,166,255,.18);
+    --accent-2:#56d364;
     --warn:#ffc26e;
+    --danger:#ff6b7a;
+    --purple:#bc8cff;
     --radius:12px;
     --radius-sm:8px;
     --shadow-sm:0 1px 2px rgba(0,0,0,.25);
@@ -38,26 +39,6 @@
     --font-serif:"Instrument Serif","Iowan Old Style","Palatino Linotype",Georgia,serif;
     --font-read:"Lora","Charter","Iowan Old Style",Georgia,serif;
     --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  }
-  @media (prefers-color-scheme: light){
-    :root{
-      --bg:#faf8f3;
-      --panel:#ffffff;
-      --panel-2:#f3efe6;
-      --panel-hi:#ece6d7;
-      --border:rgba(60,45,20,.08);
-      --border-strong:rgba(60,45,20,.16);
-      --text:#2a2823;
-      --text-dim:#4a4842;
-      --mute:#7a776f;
-      --accent:#4860d7;
-      --accent-ink:#ffffff;
-      --accent-dim:rgba(72,96,215,.10);
-      --accent-2:#2f8f67;
-      --danger:#d13b47;
-      --shadow-sm:0 1px 2px rgba(60,45,20,.06);
-      --shadow:0 10px 30px rgba(60,45,20,.10);
-    }
   }
 
   *{box-sizing:border-box}
@@ -68,13 +49,12 @@
     background:var(--bg); color:var(--text);
     -webkit-font-smoothing:antialiased;
     text-rendering:optimizeLegibility;
-    font-feature-settings:"cv11","ss01";
   }
 
   /* ---------- header ---------- */
   header{
-    display:flex; align-items:center; gap:14px;
-    padding:14px 22px;
+    display:flex; align-items:center; gap:12px;
+    padding:12px 20px;
     background:color-mix(in srgb, var(--panel) 92%, transparent);
     backdrop-filter:saturate(1.4) blur(10px);
     border-bottom:1px solid var(--border);
@@ -83,17 +63,19 @@
   header h1{
     margin:0;
     font-family:var(--font-serif);
-    font-size:24px; font-weight:400; letter-spacing:.3px;
+    font-size:22px; font-weight:400; letter-spacing:.3px;
     color:var(--text);
+    white-space:nowrap;
   }
   header h1 em{color:var(--accent); font-style:italic}
   header .status{
-    display:inline-flex; align-items:center; gap:8px;
+    display:inline-flex; align-items:center; gap:7px;
     font-size:12px; color:var(--mute);
     padding:5px 11px; background:var(--panel-2);
     border:1px solid var(--border); border-radius:999px;
     font-variant-numeric:tabular-nums;
     transition:color .15s, border-color .15s;
+    white-space:nowrap;
   }
   header .status::before{
     content:""; display:inline-block;
@@ -107,16 +89,37 @@
     background:var(--accent-2);
     box-shadow:0 0 0 3px color-mix(in srgb, var(--accent-2) 30%, transparent);
   }
+  header .stats{
+    display:inline-flex; gap:6px;
+    font:500 11px/1 var(--font-mono); color:var(--mute);
+    padding:6px 10px;
+    background:var(--panel-2); border:1px solid var(--border);
+    border-radius:999px;
+    font-variant-numeric:tabular-nums;
+  }
+  header .stats b{color:var(--text-dim); font-weight:600}
+  header .stats .dot{color:var(--border-strong)}
+  header .save-indicator{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:11px; color:var(--mute);
+    padding:5px 10px;
+    border-radius:999px;
+    font-variant-numeric:tabular-nums;
+    transition:color .2s;
+  }
+  header .save-indicator.saving{color:var(--warn)}
+  header .save-indicator.saved{color:var(--accent-2)}
   header .spacer{flex:1}
 
   /* ---------- buttons ---------- */
   button, .btn{
     background:var(--panel-2); color:var(--text);
     border:1px solid var(--border);
-    padding:8px 14px; border-radius:var(--radius-sm);
+    padding:7px 13px; border-radius:var(--radius-sm);
     cursor:pointer;
     font:500 13px/1 var(--font-ui);
     letter-spacing:.1px;
+    display:inline-flex; align-items:center; gap:6px;
     transition:background .15s, border-color .15s, transform .08s, box-shadow .15s;
   }
   button:hover{background:var(--panel-hi); border-color:var(--border-strong)}
@@ -124,57 +127,69 @@
   button:focus-visible{outline:none; box-shadow:0 0 0 3px var(--accent-dim)}
   button.primary{
     background:var(--accent); color:var(--accent-ink);
-    border-color:var(--accent);
+    border-color:var(--accent); font-weight:600;
     box-shadow:0 1px 0 rgba(255,255,255,.12) inset,
                0 4px 12px color-mix(in srgb, var(--accent) 35%, transparent);
   }
-  button.primary:hover{filter:brightness(1.06); border-color:var(--accent)}
+  button.primary:hover{filter:brightness(1.08); border-color:var(--accent)}
   button.ghost{background:transparent}
   button.ghost:hover{background:var(--panel-2)}
+  button.danger{color:var(--danger); border-color:color-mix(in srgb, var(--danger) 40%, transparent)}
+  button.danger:hover{background:color-mix(in srgb, var(--danger) 15%, transparent); border-color:var(--danger)}
   button:disabled{opacity:.45; cursor:not-allowed; transform:none; box-shadow:none}
+  .kbd{
+    font:11px/1 var(--font-mono); color:var(--mute);
+    background:var(--panel); border:1px solid var(--border);
+    padding:2px 5px; border-radius:4px;
+    margin-left:4px;
+  }
 
   /* ---------- layout ---------- */
-  main{display:grid; grid-template-columns:320px 1fr; min-height:calc(100vh - 61px)}
+  main{display:grid; grid-template-columns:320px 1fr; min-height:calc(100vh - 57px); transition:grid-template-columns .25s}
+  body.focus main{grid-template-columns:0 1fr}
+  body.focus aside{opacity:0; pointer-events:none; padding:0; border:0; overflow:hidden}
   @media (max-width:920px){ main{grid-template-columns:1fr} }
 
   /* ---------- sidebar ---------- */
   aside{
     background:var(--panel);
     border-right:1px solid var(--border);
-    padding:22px 20px;
+    padding:20px 18px;
     overflow-y:auto;
+    transition:opacity .2s;
   }
   aside h2{
+    display:flex; align-items:center; justify-content:space-between;
     font-size:11px; text-transform:uppercase;
     letter-spacing:.12em; color:var(--mute);
-    margin:0 0 12px; font-weight:600;
+    margin:0 0 10px; font-weight:600;
   }
-  aside .field{margin-bottom:14px}
-  aside label{display:block; font-size:12px; color:var(--mute); margin-bottom:6px; font-weight:500}
-  aside input, aside textarea, aside select, dialog .field input{
+  aside .field{margin-bottom:12px}
+  aside label{display:block; font-size:12px; color:var(--mute); margin-bottom:5px; font-weight:500}
+  aside input, aside textarea, aside select, dialog .field input, dialog .field textarea{
     width:100%;
     background:var(--panel-2); color:var(--text);
     border:1px solid var(--border);
     border-radius:var(--radius-sm);
-    padding:9px 11px;
+    padding:8px 10px;
     font:13px/1.4 var(--font-ui);
     transition:border-color .15s, background .15s, box-shadow .15s;
   }
   aside input:hover, dialog .field input:hover{border-color:var(--border-strong)}
-  aside input:focus, aside textarea:focus, dialog .field input:focus{
+  aside input:focus, aside textarea:focus, dialog .field input:focus, dialog .field textarea:focus{
     outline:none;
     border-color:var(--accent);
     background:var(--panel);
     box-shadow:0 0 0 3px var(--accent-dim);
   }
   aside input::placeholder, dialog .field input::placeholder{color:var(--mute)}
-  aside .row{display:flex; gap:10px}
+  aside .row{display:flex; gap:8px}
   aside .row > *{flex:1}
-  aside hr{border:none; border-top:1px solid var(--border); margin:22px 0 18px}
+  aside hr{border:none; border-top:1px solid var(--border); margin:18px 0 14px}
 
   .check-row{
     display:flex; align-items:center; gap:10px;
-    padding:9px 11px;
+    padding:8px 10px;
     background:var(--panel-2); border:1px solid var(--border);
     border-radius:var(--radius-sm); cursor:pointer;
     font-size:13px; color:var(--text);
@@ -185,14 +200,80 @@
     width:auto; margin:0; accent-color:var(--accent);
   }
 
-  /* posts list */
+  /* chip input (tags/categories autocomplete) */
+  .chip-input{
+    position:relative;
+  }
+  .chip-input .chips{
+    display:flex; flex-wrap:wrap; gap:4px;
+    padding:5px 6px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    min-height:34px;
+    cursor:text;
+  }
+  .chip-input .chips:focus-within{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-dim);
+    background:var(--panel);
+  }
+  .chip-input .chip{
+    display:inline-flex; align-items:center; gap:5px;
+    padding:3px 8px;
+    background:var(--panel-hi);
+    border:1px solid var(--border);
+    border-radius:999px;
+    font:12px/1 var(--font-mono);
+    color:var(--text-dim);
+  }
+  .chip-input .chip.cat{color:var(--purple); border-color:color-mix(in srgb, var(--purple) 35%, transparent)}
+  .chip-input .chip.tag{color:var(--accent); border-color:color-mix(in srgb, var(--accent) 35%, transparent)}
+  .chip-input .chip .x{
+    cursor:pointer; opacity:.6; font-size:14px; line-height:0;
+    padding:0 2px;
+  }
+  .chip-input .chip .x:hover{opacity:1; color:var(--danger)}
+  .chip-input input{
+    flex:1; min-width:80px;
+    border:none !important; outline:none !important;
+    box-shadow:none !important; background:transparent !important;
+    padding:3px 5px !important; font-size:12px !important;
+    width:auto !important;
+  }
+  .chip-input .suggest{
+    position:absolute; left:0; right:0; top:100%; z-index:30;
+    margin-top:4px;
+    background:var(--panel); border:1px solid var(--border-strong);
+    border-radius:var(--radius-sm);
+    box-shadow:var(--shadow);
+    max-height:200px; overflow-y:auto;
+    display:none;
+  }
+  .chip-input .suggest.open{display:block}
+  .chip-input .suggest .s-item{
+    padding:7px 11px; cursor:pointer; font-size:12px;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:8px;
+  }
+  .chip-input .suggest .s-item:hover,
+  .chip-input .suggest .s-item.hl{background:var(--panel-2)}
+  .chip-input .suggest .s-item .count{color:var(--mute); font-family:var(--font-mono); font-size:10px}
+
+  /* post list + search */
+  .post-search{position:relative; margin-bottom:8px}
+  .post-search input{padding-left:30px !important}
+  .post-search::before{
+    content:"⌕"; position:absolute; left:9px; top:50%;
+    transform:translateY(-50%); color:var(--mute); font-size:14px;
+  }
   .posts-list{
     display:flex; flex-direction:column; gap:2px;
-    max-height:340px; overflow-y:auto;
+    max-height:380px; overflow-y:auto;
     margin:0 -4px; padding:0 4px;
   }
   .post-item{
-    padding:10px 12px;
+    padding:9px 11px;
     border-radius:var(--radius-sm);
     cursor:pointer; font-size:13px;
     border:1px solid transparent;
@@ -208,25 +289,63 @@
   .post-item .meta{
     color:var(--mute); font-size:11px;
     font-variant-numeric:tabular-nums; margin-top:3px;
+    font-family:var(--font-mono);
   }
 
   /* ---------- editor pane ---------- */
   section.editor{
-    padding:22px 26px;
-    display:flex; flex-direction:column; gap:14px;
+    padding:18px 24px 24px;
+    display:flex; flex-direction:column; gap:12px;
     background:var(--bg);
+    min-width:0;
   }
-  .toolbar-extra{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+
+  /* snippets bar */
+  .snippets{
+    display:flex; flex-wrap:wrap; gap:5px;
+    padding:8px 10px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+  }
+  .snippets .snip-label{
+    font:600 10px/1 var(--font-mono);
+    text-transform:uppercase; letter-spacing:.1em;
+    color:var(--mute); align-self:center;
+    padding:0 6px 0 4px;
+    border-right:1px solid var(--border);
+    margin-right:4px;
+  }
+  .snippets button{
+    padding:5px 10px;
+    font:500 12px/1 var(--font-mono);
+    background:transparent; border:1px solid transparent;
+    color:var(--text-dim);
+    border-radius:6px;
+  }
+  .snippets button:hover{
+    background:var(--panel-2); color:var(--text);
+    border-color:var(--border);
+  }
+  .snippets button .ic{
+    display:inline-block; width:14px; text-align:center; opacity:.7;
+    margin-right:3px;
+  }
+  .snippets .sep{
+    width:1px; align-self:stretch;
+    background:var(--border); margin:0 3px;
+  }
+
   .drop-hint{
-    font-size:12px; color:var(--mute);
-    padding:7px 12px;
+    font:500 11px/1 var(--font-mono); color:var(--mute);
+    padding:5px 10px;
     border:1px dashed var(--border-strong);
     border-radius:999px;
-    display:inline-flex; align-items:center; gap:8px;
+    display:inline-flex; align-items:center; gap:7px;
     transition:all .15s;
   }
   .drop-hint::before{
-    content:""; width:6px; height:6px; border-radius:50%;
+    content:""; width:5px; height:5px; border-radius:50%;
     background:var(--mute);
   }
   .drop-hint.drag{
@@ -248,8 +367,9 @@
     box-shadow:var(--shadow);
     opacity:0; transform:translateY(10px);
     transition:opacity .18s, transform .18s;
+    pointer-events:none;
   }
-  .toast.show{opacity:1; transform:translateY(0)}
+  .toast.show{opacity:1; transform:translateY(0); pointer-events:auto}
   .toast.err{border-color:var(--danger); box-shadow:0 10px 30px color-mix(in srgb, var(--danger) 25%, transparent)}
   .toast.ok{border-color:var(--accent-2); box-shadow:0 10px 30px color-mix(in srgb, var(--accent-2) 25%, transparent)}
 
@@ -260,12 +380,13 @@
     overflow:hidden;
     box-shadow:var(--shadow-sm);
     border:1px solid var(--border);
+    flex:1;
   }
   .EasyMDEContainer .CodeMirror{
     background:var(--panel) !important;
     color:var(--text) !important;
     border:none !important;
-    min-height:64vh;
+    min-height:62vh;
     padding:24px 32px 16px;
     font:16px/1.75 var(--font-read);
     caret-color:var(--accent);
@@ -275,6 +396,15 @@
     background:var(--accent-dim) !important;
   }
   .CodeMirror-linenumber{color:var(--mute) !important}
+
+  /* code-fence lines in editor */
+  .cm-s-easymde .cm-comment{color:var(--mute) !important; font-family:var(--font-mono); font-size:14px}
+  .cm-s-easymde .cm-header{color:var(--accent); font-family:var(--font-serif); font-weight:400}
+  .cm-s-easymde .cm-link{color:var(--accent)}
+  .cm-s-easymde .cm-url{color:var(--mute)}
+  .cm-s-easymde .cm-quote{color:var(--purple); font-style:italic}
+  .cm-s-easymde .cm-em{font-style:italic}
+  .cm-s-easymde .cm-strong{color:var(--text); font-weight:700}
 
   .editor-toolbar{
     background:var(--panel) !important;
@@ -327,15 +457,13 @@
   .editor-preview h2, .editor-preview-side h2{font-size:26px; margin:1.2em 0 .35em}
   .editor-preview h3, .editor-preview-side h3{font-size:20px; margin:1em 0 .3em}
   .editor-preview a, .editor-preview-side a{
-    color:var(--accent);
-    text-decoration:none;
+    color:var(--accent); text-decoration:none;
     border-bottom:1px solid color-mix(in srgb, var(--accent) 40%, transparent);
   }
   .editor-preview code, .editor-preview-side code{
     font-family:var(--font-mono);
     background:var(--panel-2);
-    padding:2px 6px; border-radius:4px;
-    font-size:.88em;
+    padding:2px 6px; border-radius:4px; font-size:.88em;
   }
   .editor-preview pre, .editor-preview-side pre{
     font-family:var(--font-mono);
@@ -344,9 +472,7 @@
     padding:14px 18px; border-radius:8px;
     overflow-x:auto; font-size:.88em;
   }
-  .editor-preview pre code, .editor-preview-side pre code{
-    background:transparent; padding:0;
-  }
+  .editor-preview pre code, .editor-preview-side pre code{background:transparent; padding:0}
   .editor-preview blockquote, .editor-preview-side blockquote{
     border-left:3px solid var(--accent);
     padding:.2em 0 .2em 16px;
@@ -376,7 +502,7 @@
     border:1px solid var(--border);
     border-radius:14px;
     padding:26px 26px 22px;
-    max-width:480px; width:92%;
+    max-width:520px; width:92%;
     box-shadow:var(--shadow);
   }
   dialog::backdrop{
@@ -403,6 +529,26 @@
   }
   dialog .actions{display:flex; gap:8px; justify-content:flex-end; margin-top:22px}
 
+  .help-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px 20px; margin:0}
+  .help-grid dt{color:var(--text-dim); font-size:13px; display:flex; align-items:center; gap:8px}
+  .help-grid dd{margin:0; color:var(--mute); font-size:12px; text-align:right}
+  .help-grid dd .k{
+    font:500 11px/1 var(--font-mono); color:var(--text);
+    background:var(--panel-2); border:1px solid var(--border);
+    padding:3px 7px; border-radius:5px; margin-left:3px;
+  }
+
+  /* lang picker inside snippet-code dialog */
+  .lang-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:6px}
+  .lang-grid button{
+    font:500 12px/1 var(--font-mono);
+    padding:9px 6px; background:var(--panel-2);
+    border:1px solid var(--border); border-radius:6px;
+    color:var(--text-dim); text-align:center;
+  }
+  .lang-grid button:hover{background:var(--panel-hi); color:var(--text); border-color:var(--border-strong)}
+  .lang-grid button.sel{color:var(--accent); border-color:var(--accent); background:var(--accent-dim)}
+
   /* ---------- scrollbars ---------- */
   ::-webkit-scrollbar{width:10px; height:10px}
   ::-webkit-scrollbar-track{background:transparent}
@@ -427,10 +573,14 @@
 <header>
   <h1>Kareem's <em>Writing</em> Desk</h1>
   <span class="status" id="repoStatus">not connected</span>
+  <span class="stats" id="stats"><b>0</b> words <span class="dot">·</span> <b>0</b> min</span>
+  <span class="save-indicator" id="saveInd">·</span>
   <div class="spacer"></div>
-  <button class="ghost" id="btnSettings" title="Settings">Settings</button>
+  <button class="ghost" id="btnFocus" title="Focus mode (hide sidebar)  [Ctrl+.]">◧ Focus</button>
+  <button class="ghost" id="btnHelp" title="Keyboard shortcuts  [?]">?</button>
+  <button class="ghost" id="btnSettings" title="Settings">⚙ Settings</button>
   <button class="ghost" id="btnSaveDraft" title="Save local draft (Ctrl/Cmd+S)">Save draft</button>
-  <button class="primary" id="btnPublish" title="Publish to GitHub (Ctrl/Cmd+Enter)">Publish</button>
+  <button class="primary" id="btnPublish" title="Publish to GitHub (Ctrl/Cmd+Enter)">↑ Publish</button>
 </header>
 
 <main>
@@ -446,37 +596,77 @@
         <input id="fDate" type="date">
       </div>
       <div class="field">
-        <label for="fSlug">Slug (filename)</label>
+        <label for="fSlug">Slug</label>
         <input id="fSlug" placeholder="auto from title">
       </div>
     </div>
+
     <div class="field">
-      <label for="fCategories">Categories (comma-separated)</label>
-      <input id="fCategories" placeholder="Red Team, Windows">
+      <label>Categories</label>
+      <div class="chip-input" id="catsInput">
+        <div class="chips" id="catsChips">
+          <input id="catsEntry" placeholder="type and press Enter">
+        </div>
+        <div class="suggest" id="catsSug"></div>
+      </div>
     </div>
+
     <div class="field">
-      <label for="fTags">Tags (comma-separated)</label>
-      <input id="fTags" placeholder="defender, lpe, race-condition">
+      <label>Tags</label>
+      <div class="chip-input" id="tagsInput">
+        <div class="chips" id="tagsChips">
+          <input id="tagsEntry" placeholder="type and press Enter">
+        </div>
+        <div class="suggest" id="tagsSug"></div>
+      </div>
     </div>
+
     <div class="field">
-      <label>Options</label>
       <label class="check-row">
         <input type="checkbox" id="fPinned"> Pin this post to the top
       </label>
     </div>
 
     <hr>
-    <h2>Existing posts</h2>
+    <h2>
+      <span>Existing posts</span>
+      <span id="postsCount" style="color:var(--mute);font-family:var(--font-mono);text-transform:none">0</span>
+    </h2>
     <div style="display:flex;gap:6px;margin-bottom:8px">
       <button id="btnNewPost" class="ghost" style="flex:1">+ New post</button>
-      <button id="btnRefreshPosts" class="ghost" title="Refresh">↻</button>
+      <button id="btnRefreshPosts" class="ghost" title="Refresh posts">↻</button>
+    </div>
+    <div class="post-search">
+      <input id="postSearch" placeholder="Search posts…" autocomplete="off">
     </div>
     <div class="posts-list" id="postsList"><div style="color:var(--mute);font-size:12px">Connect GitHub to list posts.</div></div>
+
+    <div id="editingBox" style="display:none;margin-top:14px;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--panel-2)">
+      <div style="font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Editing</div>
+      <div id="editingPath" style="font:11px/1.3 var(--font-mono);color:var(--text-dim);word-break:break-all;margin-bottom:8px"></div>
+      <button id="btnDelete" class="danger" style="width:100%;justify-content:center">Delete this post</button>
+    </div>
   </aside>
 
   <section class="editor">
-    <div class="toolbar-extra">
-      <span class="drop-hint" id="dropHint">Drop or paste images anywhere in the editor to upload</span>
+    <div class="snippets" id="snippets">
+      <span class="snip-label">Insert</span>
+      <button data-snip="code" title="Code block with language picker"><span class="ic">⌘</span>code</button>
+      <button data-snip="shell" title="Shell / bash block"><span class="ic">$</span>shell</button>
+      <button data-snip="output" title="Plain output block"><span class="ic">»</span>output</button>
+      <span class="sep"></span>
+      <button data-snip="info" title="Info callout"><span class="ic" style="color:var(--accent)">●</span>info</button>
+      <button data-snip="tip" title="Tip callout"><span class="ic" style="color:var(--accent-2)">●</span>tip</button>
+      <button data-snip="warning" title="Warning callout"><span class="ic" style="color:var(--warn)">●</span>warn</button>
+      <button data-snip="danger" title="Danger callout"><span class="ic" style="color:var(--danger)">●</span>danger</button>
+      <span class="sep"></span>
+      <button data-snip="step" title="Step heading">## step</button>
+      <button data-snip="image" title="Image with caption"><span class="ic">▣</span>image</button>
+      <button data-snip="link" title="Link"><span class="ic">⌁</span>link</button>
+      <button data-snip="cve" title="CVE reference"><span class="ic">!</span>CVE</button>
+      <button data-snip="table" title="Markdown table"><span class="ic">▦</span>table</button>
+      <span class="sep"></span>
+      <span class="drop-hint" id="dropHint">drop or paste images</span>
     </div>
     <textarea id="md"></textarea>
   </section>
@@ -486,34 +676,132 @@
   <h3>GitHub connection</h3>
   <p>
     Create a fine-grained personal access token at
-    <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener" style="color:var(--accent)">github.com/settings/personal-access-tokens</a>
+    <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens</a>
     for repo <b>kareemwalid/kareemwalid.github.io</b> with <b>Contents: Read &amp; write</b>.
     The token is stored only in this browser's localStorage.
   </p>
   <div class="field">
-    <label for="sOwner" style="font-size:12px;color:var(--mute)">Owner</label>
+    <label for="sOwner">Owner</label>
     <input id="sOwner" placeholder="kareemwalid">
   </div>
   <div class="field">
-    <label for="sRepo" style="font-size:12px;color:var(--mute)">Repo</label>
+    <label for="sRepo">Repo</label>
     <input id="sRepo" placeholder="kareemwalid.github.io">
   </div>
   <div class="field">
-    <label for="sBranch" style="font-size:12px;color:var(--mute)">Branch</label>
+    <label for="sBranch">Branch</label>
     <input id="sBranch" placeholder="main">
   </div>
   <div class="field">
-    <label for="sToken" style="font-size:12px;color:var(--mute)">Personal access token</label>
+    <label for="sToken">Personal access token</label>
     <input id="sToken" type="password" placeholder="github_pat_... or ghp_...">
   </div>
   <div class="field">
-    <label for="sImgDir" style="font-size:12px;color:var(--mute)">Image upload directory</label>
+    <label for="sImgDir">Image upload directory</label>
     <input id="sImgDir" placeholder="assets/img/posts">
   </div>
   <div class="actions">
     <button id="sTest" class="ghost">Test connection</button>
     <button id="sClose" class="ghost">Cancel</button>
     <button id="sSave" class="primary">Save</button>
+  </div>
+</dialog>
+
+<dialog id="codeDlg">
+  <h3>Insert code block</h3>
+  <div class="field">
+    <label>Language</label>
+    <div class="lang-grid" id="langGrid"></div>
+  </div>
+  <div class="field">
+    <label for="codeLang">Or custom</label>
+    <input id="codeLang" placeholder="e.g. yaml, dockerfile">
+  </div>
+  <div class="actions">
+    <button id="codeCancel" class="ghost">Cancel</button>
+    <button id="codeOk" class="primary">Insert</button>
+  </div>
+</dialog>
+
+<dialog id="imageDlg">
+  <h3>Image</h3>
+  <p>Upload a file or paste a URL. Caption appears under the image.</p>
+  <div class="field">
+    <label for="imgFile">Upload</label>
+    <input id="imgFile" type="file" accept="image/*">
+  </div>
+  <div class="field">
+    <label for="imgUrl">Or paste URL</label>
+    <input id="imgUrl" placeholder="https://... or /assets/img/posts/foo.png">
+  </div>
+  <div class="field">
+    <label for="imgAlt">Alt text</label>
+    <input id="imgAlt" placeholder="described for screen readers / fallback">
+  </div>
+  <div class="field">
+    <label for="imgCap">Caption <span style="color:var(--mute);text-transform:none;letter-spacing:0">(optional)</span></label>
+    <input id="imgCap" placeholder="visible below the image">
+  </div>
+  <div class="actions">
+    <button id="imgCancel" class="ghost">Cancel</button>
+    <button id="imgOk" class="primary">Insert</button>
+  </div>
+</dialog>
+
+<dialog id="linkDlg">
+  <h3>Insert link</h3>
+  <div class="field">
+    <label for="linkText">Text</label>
+    <input id="linkText" placeholder="link text">
+  </div>
+  <div class="field">
+    <label for="linkUrl">URL</label>
+    <input id="linkUrl" placeholder="https://...">
+  </div>
+  <div class="actions">
+    <button id="linkCancel" class="ghost">Cancel</button>
+    <button id="linkOk" class="primary">Insert</button>
+  </div>
+</dialog>
+
+<dialog id="cveDlg">
+  <h3>CVE reference</h3>
+  <p>Inserts a link to the CVE on NVD and shows the id.</p>
+  <div class="field">
+    <label for="cveId">CVE id</label>
+    <input id="cveId" placeholder="CVE-2024-12345">
+  </div>
+  <div class="actions">
+    <button id="cveCancel" class="ghost">Cancel</button>
+    <button id="cveOk" class="primary">Insert</button>
+  </div>
+</dialog>
+
+<dialog id="confirmDlg">
+  <h3 id="confirmTitle">Confirm</h3>
+  <p id="confirmBody">Are you sure?</p>
+  <div class="actions">
+    <button id="confirmNo" class="ghost">Cancel</button>
+    <button id="confirmYes" class="danger">Delete</button>
+  </div>
+</dialog>
+
+<dialog id="helpDlg">
+  <h3>Shortcuts</h3>
+  <p>Everything you need to write a writeup fast.</p>
+  <dl class="help-grid">
+    <dt>Publish to GitHub</dt><dd><span class="k">Ctrl</span><span class="k">Enter</span></dd>
+    <dt>Save local draft</dt><dd><span class="k">Ctrl</span><span class="k">S</span></dd>
+    <dt>Focus mode</dt><dd><span class="k">Ctrl</span><span class="k">.</span></dd>
+    <dt>Fullscreen editor</dt><dd><span class="k">F11</span></dd>
+    <dt>Side-by-side preview</dt><dd><span class="k">F9</span></dd>
+    <dt>Preview</dt><dd><span class="k">Ctrl</span><span class="k">P</span></dd>
+    <dt>Bold / italic</dt><dd><span class="k">Ctrl</span><span class="k">B</span> / <span class="k">Ctrl</span><span class="k">I</span></dd>
+    <dt>Insert link</dt><dd><span class="k">Ctrl</span><span class="k">K</span></dd>
+    <dt>This help</dt><dd><span class="k">?</span></dd>
+  </dl>
+  <div class="actions">
+    <button id="helpClose" class="primary">Got it</button>
   </div>
 </dialog>
 
@@ -524,6 +812,7 @@
   const $ = (id) => document.getElementById(id);
   const LS_KEY = 'kw_editor_settings_v1';
   const DRAFT_KEY = 'kw_editor_draft_v1';
+  const SUGGEST_KEY = 'kw_editor_suggest_v1';
 
   const defaultSettings = {
     owner: 'kareemwalid',
@@ -534,8 +823,13 @@
   };
 
   let settings = loadSettings();
-  let currentFile = null;      // {path, sha} if editing an existing post
+  let currentFile = null;      // {path, sha, name} if editing an existing post
   let easyMDE = null;
+  let allPosts = [];
+  let catSuggestions = {};     // {name: count}
+  let tagSuggestions = {};
+  let autosaveTimer = null;
+  let dirty = false;
 
   // ---------- helpers ----------
   function loadSettings(){
@@ -543,6 +837,17 @@
     catch { return { ...defaultSettings }; }
   }
   function saveSettings(){ localStorage.setItem(LS_KEY, JSON.stringify(settings)); }
+
+  function loadSuggest(){
+    try {
+      const s = JSON.parse(localStorage.getItem(SUGGEST_KEY) || '{}');
+      catSuggestions = s.cats || {};
+      tagSuggestions = s.tags || {};
+    } catch { catSuggestions = {}; tagSuggestions = {}; }
+  }
+  function saveSuggest(){
+    localStorage.setItem(SUGGEST_KEY, JSON.stringify({ cats: catSuggestions, tags: tagSuggestions }));
+  }
 
   function toast(msg, kind=''){
     const t = $('toast');
@@ -566,9 +871,7 @@
     return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
   }
 
-  function b64encodeUtf8(str){
-    return btoa(unescape(encodeURIComponent(str)));
-  }
+  function b64encodeUtf8(str){ return btoa(unescape(encodeURIComponent(str))); }
   function b64decodeUtf8(b64){
     try { return decodeURIComponent(escape(atob(b64.replace(/\s/g,'')))); }
     catch { return atob(b64.replace(/\s/g,'')); }
@@ -628,6 +931,13 @@
     });
   }
 
+  async function deleteFile(path, sha, message){
+    return gh(`/repos/${settings.owner}/${settings.repo}/contents/${encodeURIComponent(path).replace(/%2F/g,'/')}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ message, sha, branch: settings.branch })
+    });
+  }
+
   async function putBinary(path, b64, message){
     return gh(`/repos/${settings.owner}/${settings.repo}/contents/${encodeURIComponent(path).replace(/%2F/g,'/')}`, {
       method: 'PUT',
@@ -639,8 +949,8 @@
   function buildFrontmatter(){
     const title = ($('fTitle').value || 'Untitled').trim();
     const date  = $('fDate').value || todayISO();
-    const cats  = $('fCategories').value.split(',').map(s=>s.trim()).filter(Boolean);
-    const tags  = $('fTags').value.split(',').map(s=>s.trim()).filter(Boolean);
+    const cats  = getChips('cats');
+    const tags  = getChips('tags');
     const pinned= $('fPinned').checked;
     const yamlList = arr => '[' + arr.map(x => /[,\[\]:#&*!?|>'"%@`]/.test(x) ? JSON.stringify(x) : x).join(', ') + ']';
     const lines = ['---'];
@@ -679,8 +989,169 @@
     return `_posts/${date}-${slug}.md`;
   }
 
+  // ---------- chip input (tags + categories) ----------
+  function getChips(which){
+    const wrap = $(which === 'cats' ? 'catsChips' : 'tagsChips');
+    return [...wrap.querySelectorAll('.chip')].map(c => c.dataset.v);
+  }
+  function setChips(which, values){
+    const wrap = $(which === 'cats' ? 'catsChips' : 'tagsChips');
+    [...wrap.querySelectorAll('.chip')].forEach(c => c.remove());
+    const entry = wrap.querySelector('input');
+    (values || []).forEach(v => wrap.insertBefore(makeChip(which, v), entry));
+  }
+  function makeChip(which, value){
+    const el = document.createElement('span');
+    el.className = 'chip ' + (which === 'cats' ? 'cat' : 'tag');
+    el.dataset.v = value;
+    el.innerHTML = `${value.replace(/</g,'&lt;')}<span class="x" title="Remove">×</span>`;
+    el.querySelector('.x').addEventListener('click', () => { el.remove(); markDirty(); });
+    return el;
+  }
+  function addChip(which, value){
+    value = (value || '').trim();
+    if (!value) return;
+    const existing = getChips(which).map(s => s.toLowerCase());
+    if (existing.includes(value.toLowerCase())) return;
+    const wrap = $(which === 'cats' ? 'catsChips' : 'tagsChips');
+    const entry = wrap.querySelector('input');
+    wrap.insertBefore(makeChip(which, value), entry);
+    // learn
+    const bag = which === 'cats' ? catSuggestions : tagSuggestions;
+    bag[value] = (bag[value] || 0) + 1;
+    saveSuggest();
+    markDirty();
+  }
+
+  function initChipInput(which){
+    const entryId = which === 'cats' ? 'catsEntry' : 'tagsEntry';
+    const sugId   = which === 'cats' ? 'catsSug'   : 'tagsSug';
+    const wrapId  = which === 'cats' ? 'catsChips' : 'tagsChips';
+    const input = $(entryId);
+    const sug = $(sugId);
+    const wrap = $(wrapId);
+    wrap.addEventListener('click', (e) => { if (e.target === wrap) input.focus(); });
+    let hlIdx = -1;
+
+    function render(){
+      const q = input.value.trim().toLowerCase();
+      const bag = which === 'cats' ? catSuggestions : tagSuggestions;
+      const current = getChips(which).map(s => s.toLowerCase());
+      const items = Object.entries(bag)
+        .filter(([k]) => !current.includes(k.toLowerCase()))
+        .filter(([k]) => !q || k.toLowerCase().includes(q))
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 8);
+      if (!items.length){ sug.classList.remove('open'); return; }
+      sug.innerHTML = items.map(([k,v], i) =>
+        `<div class="s-item${i===hlIdx?' hl':''}" data-v="${k.replace(/"/g,'&quot;')}">
+          <span>${k.replace(/</g,'&lt;')}</span><span class="count">×${v}</span>
+        </div>`).join('');
+      sug.classList.add('open');
+      [...sug.querySelectorAll('.s-item')].forEach(el => {
+        el.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          addChip(which, el.dataset.v);
+          input.value = ''; hlIdx = -1; render();
+        });
+      });
+    }
+    input.addEventListener('input', () => { hlIdx = -1; render(); });
+    input.addEventListener('focus', render);
+    input.addEventListener('blur', () => setTimeout(() => sug.classList.remove('open'), 150));
+    input.addEventListener('keydown', (e) => {
+      const items = [...sug.querySelectorAll('.s-item')];
+      if (e.key === 'Enter' || e.key === ','){
+        e.preventDefault();
+        if (hlIdx >= 0 && items[hlIdx]) addChip(which, items[hlIdx].dataset.v);
+        else if (input.value.trim()) addChip(which, input.value);
+        input.value = ''; hlIdx = -1; render();
+      } else if (e.key === 'Backspace' && !input.value){
+        const chips = [...wrap.querySelectorAll('.chip')];
+        if (chips.length){ chips[chips.length-1].remove(); markDirty(); render(); }
+      } else if (e.key === 'ArrowDown'){
+        e.preventDefault(); hlIdx = Math.min(items.length-1, hlIdx+1); render();
+      } else if (e.key === 'ArrowUp'){
+        e.preventDefault(); hlIdx = Math.max(-1, hlIdx-1); render();
+      } else if (e.key === 'Escape'){
+        sug.classList.remove('open'); hlIdx = -1;
+      }
+    });
+  }
+
+  // ---------- snippets ----------
+  const LANGS = ['bash','powershell','python','c','cpp','http','javascript','typescript','go','rust','ruby','php','sql','yaml','json','html','css','text','asm','dockerfile'];
+
+  function cm(){ return easyMDE.codemirror; }
+  function cmDoc(){ return cm().getDoc(); }
+
+  function insertText(text, selectOffsetA, selectOffsetB){
+    const c = cm();
+    const doc = c.getDoc();
+    const pos = doc.getCursor();
+    doc.replaceRange(text, pos);
+    if (selectOffsetA != null){
+      const lines = text.split('\n');
+      const endLine = pos.line + lines.length - 1;
+      const endCh = lines.length === 1 ? pos.ch + lines[0].length : lines[lines.length-1].length;
+      doc.setSelection({line:endLine, ch:endCh - selectOffsetA}, {line:endLine, ch:endCh - selectOffsetB});
+    }
+    c.focus();
+    markDirty();
+  }
+
+  function wrapSelection(before, after){
+    const c = cm();
+    const doc = c.getDoc();
+    const sel = doc.getSelection();
+    doc.replaceSelection(before + sel + after, 'end');
+    c.focus();
+    markDirty();
+  }
+
+  function insertCodeBlock(lang){
+    const c = cm();
+    const doc = c.getDoc();
+    const sel = doc.getSelection() || '';
+    const body = sel || 'your code here';
+    const block = '\n```' + lang + '\n' + body + '\n```\n';
+    doc.replaceSelection(block, 'end');
+    if (!sel){
+      const pos = doc.getCursor();
+      doc.setSelection({line:pos.line-2, ch:0}, {line:pos.line-2, ch:body.length});
+    }
+    c.focus(); markDirty();
+  }
+
+  function insertCallout(kind){
+    const c = cm();
+    const doc = c.getDoc();
+    const sel = doc.getSelection() || `${kind} message here`;
+    const block = '\n> ' + sel + '\n{: .prompt-' + kind + ' }\n';
+    doc.replaceSelection(block, 'end');
+    c.focus(); markDirty();
+  }
+
+  function insertStepHeading(){
+    const n = (easyMDE.value().match(/^##\s+step\s+\d+/gim) || []).length + 1;
+    insertText(`\n\n## Step ${n} - \n`);
+    const c = cm(); const doc = c.getDoc();
+    const pos = doc.getCursor();
+    doc.setCursor({line: pos.line - 1, ch: doc.getLine(pos.line - 1).length});
+    c.focus();
+  }
+
+  function insertTable(){
+    const t =
+`\n| Column 1 | Column 2 | Column 3 |
+|----------|----------|----------|
+| cell     | cell     | cell     |
+| cell     | cell     | cell     |\n\n`;
+    insertText(t);
+  }
+
   // ---------- image upload ----------
-  async function uploadImage(file){
+  async function uploadImageFile(file){
     const slug = ($('fSlug').value || slugify($('fTitle').value || 'post')).trim();
     const safeName = file.name.replace(/[^A-Za-z0-9._-]+/g,'_');
     const ts = Date.now().toString(36);
@@ -688,23 +1159,24 @@
     toast(`Uploading ${safeName}…`);
     const b64 = await fileToBase64(file);
     await putBinary(path, b64, `editor: upload image ${safeName}`);
-    const url = `/${path}`;
     toast(`Uploaded ${safeName}`, 'ok');
-    return { url, alt: safeName.replace(/\.[^.]+$/,'') };
+    return { url: `/${path}`, alt: safeName.replace(/\.[^.]+$/,'') };
   }
 
-  function insertAtCursor(cm, text){
-    const doc = cm.getDoc();
-    doc.replaceSelection(text, 'end');
+  function imageMarkdown(url, alt, caption){
+    const md = `\n![${alt || ''}](${url})\n`;
+    if (!caption) return md;
+    return `\n![${alt || ''}](${url})\n_${caption}_\n`;
   }
 
-  async function handleFiles(files){
-    const cm = easyMDE.codemirror;
+  async function handleDroppedFiles(files){
+    const c = cm(); const doc = c.getDoc();
     for (const f of files){
       if (!f.type.startsWith('image/')) continue;
       try {
-        const { url, alt } = await uploadImage(f);
-        insertAtCursor(cm, `\n![${alt}](${url})\n`);
+        const { url, alt } = await uploadImageFile(f);
+        doc.replaceSelection(imageMarkdown(url, alt, ''), 'end');
+        markDirty();
       } catch(e){ toast('Upload failed: ' + e.message, 'err'); }
     }
   }
@@ -721,6 +1193,14 @@
     }
   }
 
+  function updateStats(){
+    if (!easyMDE) return;
+    const text = easyMDE.value().replace(/```[\s\S]*?```/g,' ').replace(/`[^`]*`/g,' ');
+    const words = (text.trim().match(/\S+/g) || []).length;
+    const mins = Math.max(1, Math.round(words / 220));
+    $('stats').innerHTML = `<b>${words}</b> words <span class="dot">·</span> <b>${mins}</b> min`;
+  }
+
   function openSettings(){
     $('sOwner').value  = settings.owner;
     $('sRepo').value   = settings.repo;
@@ -735,11 +1215,14 @@
     $('fTitle').value = '';
     $('fSlug').value  = '';
     $('fDate').value  = todayISO();
-    $('fCategories').value = '';
-    $('fTags').value  = '';
+    setChips('cats', []);
+    setChips('tags', []);
     $('fPinned').checked = false;
     easyMDE.value('');
+    $('editingBox').style.display = 'none';
+    markActivePost(null);
     toast('New post');
+    $('fTitle').focus();
   }
 
   async function openPost(item){
@@ -747,39 +1230,90 @@
       toast('Loading…');
       const f = await readFile(item.path);
       const { meta, body } = parseFrontmatter(f.text);
-      currentFile = { path: f.path, sha: f.sha };
+      currentFile = { path: f.path, sha: f.sha, name: item.name };
       $('fTitle').value = meta.title || item.name.replace(/\.md$/,'');
       const dm = item.name.match(/^(\d{4}-\d{2}-\d{2})-(.+?)\.md$/);
       $('fDate').value  = (typeof meta.date === 'string' ? meta.date.slice(0,10) : null) || (dm ? dm[1] : todayISO());
       $('fSlug').value  = dm ? dm[2] : slugify(meta.title || '');
-      $('fCategories').value = Array.isArray(meta.categories) ? meta.categories.join(', ') : (meta.categories || '');
-      $('fTags').value       = Array.isArray(meta.tags) ? meta.tags.join(', ') : (meta.tags || '');
-      $('fPinned').checked   = String(meta.pin).toLowerCase() === 'true';
+      const cats = Array.isArray(meta.categories) ? meta.categories : (meta.categories ? [meta.categories] : []);
+      const tags = Array.isArray(meta.tags) ? meta.tags : (meta.tags ? [meta.tags] : []);
+      setChips('cats', cats);
+      setChips('tags', tags);
+      cats.forEach(c => { catSuggestions[c] = (catSuggestions[c] || 0) + 1; });
+      tags.forEach(t => { tagSuggestions[t] = (tagSuggestions[t] || 0) + 1; });
+      saveSuggest();
+      $('fPinned').checked = String(meta.pin).toLowerCase() === 'true';
       easyMDE.value(body);
+      $('editingBox').style.display = '';
+      $('editingPath').textContent = f.path;
+      markActivePost(item.name);
+      dirty = false; setSaveStatus('saved');
       toast('Loaded ' + item.name, 'ok');
+      updateStats();
     } catch(e){ toast('Open failed: ' + e.message, 'err'); }
   }
 
-  async function refreshPosts(){
+  function markActivePost(name){
+    [...$('postsList').querySelectorAll('.post-item')].forEach(el => {
+      el.classList.toggle('active', el.dataset.name === name);
+    });
+  }
+
+  function renderPostsList(filter=''){
     const list = $('postsList');
-    if (!settings.token){ list.innerHTML = '<div style="color:var(--mute);font-size:12px">Connect GitHub to list posts.</div>'; return; }
-    list.innerHTML = '<div style="color:var(--mute);font-size:12px">Loading…</div>';
-    try {
-      const items = await listPosts();
-      list.innerHTML = '';
-      for (const it of items){
-        const el = document.createElement('div');
-        el.className = 'post-item';
-        const m = it.name.match(/^(\d{4}-\d{2}-\d{2})-(.+)\.md$/);
-        el.innerHTML = `<div>${(m ? m[2] : it.name).replace(/[-_]/g,' ')}</div><div class="meta">${m ? m[1] : ''}</div>`;
-        el.title = it.name;
-        el.addEventListener('click', () => openPost(it));
-        list.appendChild(el);
-      }
-      if (!items.length) list.innerHTML = '<div style="color:var(--mute);font-size:12px">No posts yet.</div>';
-    } catch(e){
-      list.innerHTML = `<div style="color:var(--danger);font-size:12px">${e.message}</div>`;
+    const q = filter.trim().toLowerCase();
+    const items = allPosts.filter(it => !q || it.name.toLowerCase().includes(q));
+    list.innerHTML = '';
+    $('postsCount').textContent = `${allPosts.length}${q?` · ${items.length}`:''}`;
+    if (!items.length){
+      list.innerHTML = `<div style="color:var(--mute);font-size:12px">${allPosts.length ? 'No match.' : 'No posts yet.'}</div>`;
+      return;
     }
+    for (const it of items){
+      const el = document.createElement('div');
+      el.className = 'post-item';
+      el.dataset.name = it.name;
+      const m = it.name.match(/^(\d{4}-\d{2}-\d{2})-(.+)\.md$/);
+      const title = (m ? m[2] : it.name).replace(/[-_]/g,' ');
+      el.innerHTML = `<div class="title">${title}</div><div class="meta">${m ? m[1] : ''}</div>`;
+      el.title = it.name;
+      el.addEventListener('click', () => openPost(it));
+      list.appendChild(el);
+    }
+    if (currentFile) markActivePost(currentFile.name);
+  }
+
+  async function refreshPosts(){
+    if (!settings.token){
+      $('postsList').innerHTML = '<div style="color:var(--mute);font-size:12px">Connect GitHub to list posts.</div>';
+      $('postsCount').textContent = '';
+      return;
+    }
+    $('postsList').innerHTML = '<div style="color:var(--mute);font-size:12px">Loading…</div>';
+    try {
+      allPosts = await listPosts();
+      renderPostsList($('postSearch').value);
+      // learn tags/cats from all posts in the background
+      learnFromPosts();
+    } catch(e){
+      $('postsList').innerHTML = `<div style="color:var(--danger);font-size:12px">${e.message}</div>`;
+    }
+  }
+
+  async function learnFromPosts(){
+    // read up to 6 most recent posts' frontmatter to seed suggestions
+    const slice = allPosts.slice(0, 6);
+    for (const it of slice){
+      try {
+        const f = await readFile(it.path);
+        const { meta } = parseFrontmatter(f.text);
+        const cats = Array.isArray(meta.categories) ? meta.categories : (meta.categories ? [meta.categories] : []);
+        const tags = Array.isArray(meta.tags) ? meta.tags : (meta.tags ? [meta.tags] : []);
+        cats.forEach(c => { catSuggestions[c] = (catSuggestions[c] || 0) + 1; });
+        tags.forEach(t => { tagSuggestions[t] = (tagSuggestions[t] || 0) + 1; });
+      } catch {}
+    }
+    saveSuggest();
   }
 
   async function publish(){
@@ -790,35 +1324,93 @@
     const path = targetFilename();
     const btn = $('btnPublish'); btn.disabled = true; btn.textContent = 'Publishing…';
     try {
-      // if editing and filename changed, delete old file after writing new one
       const renaming = currentFile && currentFile.path !== path;
       let sha = currentFile && !renaming ? currentFile.sha : undefined;
       if (!sha){
         try { const existing = await readFile(path); sha = existing.sha; } catch {}
       }
-      const res = await putFile(path, content, (currentFile ? 'editor: update' : 'editor: new post') + ' ' + path.replace(/^_posts\//,''), sha);
-      currentFile = { path, sha: res.content.sha };
+      const message = (currentFile ? 'editor: update ' : 'editor: new post ') + path.replace(/^_posts\//,'');
+      const res = await putFile(path, content, message, sha);
+      // if renaming, delete the old file
       if (renaming){
-        try {
-          await gh(`/repos/${settings.owner}/${settings.repo}/contents/${currentFile.path === currentFile.path ? '' : ''}`); // noop
-        } catch{}
+        try { await deleteFile(currentFile.path, currentFile.sha, `editor: delete old ${currentFile.path.replace(/^_posts\//,'')}`); } catch(e){ console.warn(e); }
       }
+      currentFile = { path, sha: res.content.sha, name: path.replace(/^_posts\//,'') };
+      $('editingBox').style.display = '';
+      $('editingPath').textContent = path;
       localStorage.removeItem(DRAFT_KEY);
+      dirty = false; setSaveStatus('published');
       toast('Published — GitHub Pages will deploy shortly', 'ok');
       refreshPosts();
     } catch(e){ toast('Publish failed: ' + e.message, 'err'); }
-    finally { btn.disabled = false; btn.textContent = 'Publish'; }
+    finally { btn.disabled = false; btn.textContent = '↑ Publish'; }
   }
 
-  function saveDraftLocal(){
+  async function deleteCurrent(){
+    if (!currentFile) return;
+    const name = currentFile.name || currentFile.path;
+    const ok = await confirmDialog('Delete this post?', `This permanently removes <b>${name}</b> from the repository.`);
+    if (!ok) return;
+    try {
+      await deleteFile(currentFile.path, currentFile.sha, `editor: delete ${name}`);
+      toast('Deleted', 'ok');
+      newPost();
+      refreshPosts();
+    } catch(e){ toast('Delete failed: ' + e.message, 'err'); }
+  }
+
+  function confirmDialog(title, bodyHtml){
+    return new Promise((res) => {
+      $('confirmTitle').textContent = title;
+      $('confirmBody').innerHTML = bodyHtml;
+      const dlg = $('confirmDlg');
+      const yes = () => { dlg.close(); cleanup(); res(true); };
+      const no  = () => { dlg.close(); cleanup(); res(false); };
+      const cleanup = () => {
+        $('confirmYes').removeEventListener('click', yes);
+        $('confirmNo').removeEventListener('click', no);
+      };
+      $('confirmYes').addEventListener('click', yes);
+      $('confirmNo').addEventListener('click', no);
+      dlg.showModal();
+    });
+  }
+
+  // ---------- draft + autosave ----------
+  function setSaveStatus(state){
+    const el = $('saveInd');
+    el.className = 'save-indicator ' + (state === 'saving' ? 'saving' : state === 'saved' || state === 'published' ? 'saved' : '');
+    const stamp = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    if (state === 'saving') el.textContent = '◌ saving…';
+    else if (state === 'saved') el.textContent = `✓ draft saved ${stamp}`;
+    else if (state === 'published') el.textContent = `↑ published ${stamp}`;
+    else el.textContent = '·';
+  }
+
+  function markDirty(){
+    dirty = true;
+    setSaveStatus('·');
+    scheduleAutosave();
+  }
+  function scheduleAutosave(){
+    clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(() => { if (dirty) saveDraftLocal(true); }, 2500);
+  }
+
+  function saveDraftLocal(silent){
+    setSaveStatus('saving');
     const draft = {
       title: $('fTitle').value, slug: $('fSlug').value, date: $('fDate').value,
-      categories: $('fCategories').value, tags: $('fTags').value, pinned: $('fPinned').checked,
-      body: easyMDE.value(), currentFile
+      categories: getChips('cats'), tags: getChips('tags'), pinned: $('fPinned').checked,
+      body: easyMDE.value(), currentFile,
+      savedAt: Date.now()
     };
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-    toast('Draft saved locally', 'ok');
+    dirty = false;
+    setSaveStatus('saved');
+    if (!silent) toast('Draft saved locally', 'ok');
   }
+
   function restoreDraftLocal(){
     try {
       const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
@@ -826,16 +1418,23 @@
       $('fTitle').value = d.title || '';
       $('fSlug').value  = d.slug || '';
       $('fDate').value  = d.date || todayISO();
-      $('fCategories').value = d.categories || '';
-      $('fTags').value  = d.tags || '';
+      setChips('cats', Array.isArray(d.categories) ? d.categories : (d.categories ? String(d.categories).split(',').map(s=>s.trim()).filter(Boolean) : []));
+      setChips('tags', Array.isArray(d.tags) ? d.tags : (d.tags ? String(d.tags).split(',').map(s=>s.trim()).filter(Boolean) : []));
       $('fPinned').checked = !!d.pinned;
       easyMDE.value(d.body || '');
       currentFile = d.currentFile || null;
+      if (currentFile){ $('editingBox').style.display = ''; $('editingPath').textContent = currentFile.path; }
+      updateStats();
+      if (d.savedAt){ setSaveStatus('saved'); }
     } catch{}
   }
 
   // ---------- init ----------
   window.addEventListener('load', () => {
+    loadSuggest();
+    initChipInput('cats');
+    initChipInput('tags');
+
     easyMDE = new EasyMDE({
       element: $('md'),
       autofocus: true,
@@ -844,23 +1443,21 @@
       previewClass: ['editor-preview','markdown-body'],
       renderingConfig: { singleLineBreaks:false, codeSyntaxHighlighting:true },
       previewRender: (plain) => DOMPurify.sanitize(marked.parse(plain)),
+      shortcuts: {
+        togglePreview: 'Ctrl-P',
+        toggleSideBySide: 'F9',
+        toggleFullScreen: 'F11'
+      },
       toolbar: [
         'bold','italic','heading','|',
         'quote','unordered-list','ordered-list','|',
-        'link','image','table','code','horizontal-rule','|',
+        'link','image','code','horizontal-rule','|',
         'preview','side-by-side','fullscreen','|',
-        {
-          name:'upload', action: () => {
-            const i = document.createElement('input');
-            i.type='file'; i.accept='image/*'; i.multiple = true;
-            i.onchange = () => handleFiles([...i.files]);
-            i.click();
-          },
-          className:'fa fa-upload', title:'Upload images'
-        },
         'guide'
       ]
     });
+
+    easyMDE.codemirror.on('change', () => { markDirty(); updateStats(); });
 
     // paste & drop image upload
     const cmEl = easyMDE.codemirror.getWrapperElement();
@@ -868,7 +1465,7 @@
       const files = [...(e.clipboardData?.items || [])]
         .filter(it => it.kind === 'file' && it.type.startsWith('image/'))
         .map(it => it.getAsFile());
-      if (files.length){ e.preventDefault(); handleFiles(files); }
+      if (files.length){ e.preventDefault(); handleDroppedFiles(files); }
     });
     cmEl.addEventListener('dragover', (e) => { e.preventDefault(); $('dropHint').classList.add('drag'); });
     cmEl.addEventListener('dragleave', () => $('dropHint').classList.remove('drag'));
@@ -876,29 +1473,171 @@
       e.preventDefault();
       $('dropHint').classList.remove('drag');
       const files = [...(e.dataTransfer?.files || [])];
-      if (files.length) handleFiles(files);
+      if (files.length) handleDroppedFiles(files);
     });
+
+    // snippet buttons
+    $('snippets').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-snip]');
+      if (!b) return;
+      const kind = b.dataset.snip;
+      if (kind === 'code')       openCodeDialog();
+      else if (kind === 'shell') insertCodeBlock('bash');
+      else if (kind === 'output')insertCodeBlock('text');
+      else if (['info','tip','warning','danger'].includes(kind)) insertCallout(kind);
+      else if (kind === 'step')  insertStepHeading();
+      else if (kind === 'image') openImageDialog();
+      else if (kind === 'link')  openLinkDialog();
+      else if (kind === 'cve')   openCveDialog();
+      else if (kind === 'table') insertTable();
+    });
+
+    // code dialog
+    function openCodeDialog(){
+      const g = $('langGrid');
+      g.innerHTML = LANGS.map(l => `<button data-lang="${l}">${l}</button>`).join('');
+      let sel = 'bash';
+      g.querySelector('[data-lang="bash"]').classList.add('sel');
+      g.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-lang]');
+        if (!b) return;
+        sel = b.dataset.lang;
+        [...g.querySelectorAll('button')].forEach(x => x.classList.toggle('sel', x === b));
+        $('codeLang').value = '';
+      }, { once: false });
+      $('codeLang').value = '';
+      const dlg = $('codeDlg');
+      const ok = () => { dlg.close(); cleanup(); insertCodeBlock($('codeLang').value.trim() || sel); };
+      const no = () => { dlg.close(); cleanup(); };
+      const cleanup = () => {
+        $('codeOk').removeEventListener('click', ok);
+        $('codeCancel').removeEventListener('click', no);
+      };
+      $('codeOk').addEventListener('click', ok);
+      $('codeCancel').addEventListener('click', no);
+      dlg.showModal();
+      setTimeout(() => $('codeLang').focus(), 50);
+    }
+
+    // image dialog
+    async function openImageDialog(){
+      $('imgFile').value = ''; $('imgUrl').value = ''; $('imgAlt').value = ''; $('imgCap').value = '';
+      const dlg = $('imageDlg');
+      const ok = async () => {
+        const file = $('imgFile').files[0];
+        let url = $('imgUrl').value.trim();
+        const alt = $('imgAlt').value.trim();
+        const cap = $('imgCap').value.trim();
+        dlg.close(); cleanup();
+        try {
+          if (file){
+            const r = await uploadImageFile(file);
+            url = r.url;
+          }
+          if (!url){ toast('No image provided', 'err'); return; }
+          insertText(imageMarkdown(url, alt || 'image', cap));
+        } catch(e){ toast('Image failed: ' + e.message, 'err'); }
+      };
+      const no = () => { dlg.close(); cleanup(); };
+      const cleanup = () => {
+        $('imgOk').removeEventListener('click', ok);
+        $('imgCancel').removeEventListener('click', no);
+      };
+      $('imgOk').addEventListener('click', ok);
+      $('imgCancel').addEventListener('click', no);
+      dlg.showModal();
+    }
+
+    // link dialog
+    function openLinkDialog(){
+      const sel = cmDoc().getSelection() || '';
+      $('linkText').value = sel; $('linkUrl').value = '';
+      const dlg = $('linkDlg');
+      const ok = () => {
+        const t = $('linkText').value.trim() || 'link';
+        const u = $('linkUrl').value.trim() || 'https://';
+        dlg.close(); cleanup();
+        cmDoc().replaceSelection(`[${t}](${u})`, 'end');
+        cm().focus(); markDirty();
+      };
+      const no = () => { dlg.close(); cleanup(); };
+      const cleanup = () => {
+        $('linkOk').removeEventListener('click', ok);
+        $('linkCancel').removeEventListener('click', no);
+      };
+      $('linkOk').addEventListener('click', ok);
+      $('linkCancel').addEventListener('click', no);
+      dlg.showModal();
+      setTimeout(() => (sel ? $('linkUrl') : $('linkText')).focus(), 50);
+    }
+
+    // CVE dialog
+    function openCveDialog(){
+      $('cveId').value = '';
+      const dlg = $('cveDlg');
+      const ok = () => {
+        let id = $('cveId').value.trim().toUpperCase();
+        if (!id){ dlg.close(); cleanup(); return; }
+        if (!/^CVE-/.test(id)) id = 'CVE-' + id;
+        dlg.close(); cleanup();
+        cmDoc().replaceSelection(`[${id}](https://nvd.nist.gov/vuln/detail/${id})`, 'end');
+        cm().focus(); markDirty();
+      };
+      const no = () => { dlg.close(); cleanup(); };
+      const cleanup = () => {
+        $('cveOk').removeEventListener('click', ok);
+        $('cveCancel').removeEventListener('click', no);
+      };
+      $('cveOk').addEventListener('click', ok);
+      $('cveCancel').addEventListener('click', no);
+      dlg.showModal();
+      setTimeout(() => $('cveId').focus(), 50);
+    }
+
+    // post search
+    $('postSearch').addEventListener('input', (e) => renderPostsList(e.target.value));
+
+    // focus mode
+    const toggleFocus = () => {
+      document.body.classList.toggle('focus');
+      $('btnFocus').textContent = document.body.classList.contains('focus') ? '◨ Exit focus' : '◧ Focus';
+    };
+    $('btnFocus').addEventListener('click', toggleFocus);
+
+    // help
+    $('btnHelp').addEventListener('click', () => $('helpDlg').showModal());
+    $('helpClose').addEventListener('click', () => $('helpDlg').close());
 
     // keybindings
     document.addEventListener('keydown', (e) => {
       const mod = e.ctrlKey || e.metaKey;
+      const target = e.target;
+      const inField = target && target.matches && target.matches('input,textarea,.CodeMirror textarea');
       if (mod && e.key === 'Enter'){ e.preventDefault(); publish(); }
       else if (mod && e.key.toLowerCase() === 's'){ e.preventDefault(); saveDraftLocal(); }
+      else if (mod && e.key === '.'){ e.preventDefault(); toggleFocus(); }
+      else if (e.key === '?' && !inField){ e.preventDefault(); $('helpDlg').showModal(); }
     });
 
-    // auto-slug from title (only when slug untouched)
+    // auto-slug from title
     let slugTouched = false;
-    $('fSlug').addEventListener('input', () => slugTouched = true);
-    $('fTitle').addEventListener('input', () => { if (!slugTouched) $('fSlug').value = slugify($('fTitle').value); });
+    $('fSlug').addEventListener('input', () => { slugTouched = true; markDirty(); });
+    $('fTitle').addEventListener('input', () => {
+      if (!slugTouched) $('fSlug').value = slugify($('fTitle').value);
+      markDirty();
+    });
+    $('fDate').addEventListener('input', markDirty);
+    $('fPinned').addEventListener('change', markDirty);
 
     // default date
     $('fDate').value = todayISO();
 
     $('btnSettings').addEventListener('click', openSettings);
     $('btnPublish').addEventListener('click', publish);
-    $('btnSaveDraft').addEventListener('click', saveDraftLocal);
+    $('btnSaveDraft').addEventListener('click', () => saveDraftLocal(false));
     $('btnNewPost').addEventListener('click', newPost);
     $('btnRefreshPosts').addEventListener('click', refreshPosts);
+    $('btnDelete').addEventListener('click', deleteCurrent);
 
     $('sClose').addEventListener('click', () => $('settingsDlg').close());
     $('sSave').addEventListener('click', () => {
@@ -928,9 +1667,15 @@
       finally { settings.token = prev; }
     });
 
+    // warn on unload if dirty
+    window.addEventListener('beforeunload', (e) => {
+      if (dirty){ e.preventDefault(); e.returnValue = ''; }
+    });
+
     restoreDraftLocal();
     renderStatus();
     refreshPosts();
+    updateStats();
     if (!settings.token) setTimeout(openSettings, 300);
   });
 })();
