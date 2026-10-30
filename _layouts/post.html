@@ -30,7 +30,13 @@ layout: default
       </header>
 
       <div class="prose">
-        {{ content }}
+        {% assign body = content %}
+        {% assign body = body | replace: 'src="../pics/', 'src="/pics/' %}
+        {% assign body = body | replace: 'src="../', 'src="/' %}
+        {% assign body = body | replace: 'src="./', 'src="/' %}
+        {% assign body = body | replace: 'href="../pics/', 'href="/pics/' %}
+        {% assign body = body | replace: 'href="../', 'href="/' %}
+        {{ body }}
       </div>
     </div>
 
@@ -58,6 +64,15 @@ layout: default
 
 <script>
   (() => {
+    // Fix any bare-filename image src that would otherwise 404 (e.g. `image.png`
+    // from an older post) by resolving it against the site root.
+    document.querySelectorAll('.prose img').forEach(img => {
+      const src = img.getAttribute('src') || '';
+      if (!src) return;
+      if (/^(https?:|data:|\/)/.test(src)) return;
+      img.setAttribute('src', '/' + src.replace(/^(\.\.?\/)+/, ''));
+    });
+
     const toc = document.getElementById('toc');
     const headings = document.querySelectorAll('.prose h1, .prose h2');
     if (!headings.length) { toc.parentNode.firstElementChild.style.display = 'none'; toc.style.display='none'; return; }
