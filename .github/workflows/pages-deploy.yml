@@ -17,9 +17,10 @@ permissions:
   pages: write
   id-token: write
 
-# Allow one concurrent deployment
+# Validation workflow — separate concurrency group so it never cancels
+# the real deploy workflow (jekyll.yml), which owns the "pages" group.
 concurrency:
-  group: "pages"
+  group: "pages-validate"
   cancel-in-progress: true
 
 jobs:
